@@ -33,7 +33,7 @@
 #include "BMeshFace.h"
 
 UBMeshLoop* UBMeshLoop::MakeLoop(TSubclassOf<UBMeshLoop> LoopClass, UBMeshVertex* Vertex, UBMeshEdge* Edge,
-	UBMeshFace* Face)
+                                 UBMeshFace* Face)
 {
 	if (LoopClass)
 	{

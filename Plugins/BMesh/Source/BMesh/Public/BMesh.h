@@ -74,18 +74,18 @@ UCLASS()
 class BMESH_API UBMesh : public UObject
 {
 	GENERATED_BODY()
-    // Topological entities
+	// Topological entities
 public:
 	UPROPERTY()
-	TArray<UBMeshVertex*> vertices;
+	TArray<UBMeshVertex*> Vertices;
 	UPROPERTY()
-    TArray<UBMeshEdge*> edges;
+	TArray<UBMeshEdge*> Edges;
 	UPROPERTY()
-    TArray<UBMeshLoop*> loops;
+	TArray<UBMeshLoop*> Loops;
 	UPROPERTY()
-    TArray<UBMeshFace*> faces;
+	TArray<UBMeshFace*> Faces;
 
-    UPROPERTY()
+	UPROPERTY()
 	TSubclassOf<UBMeshVertex> VertexClass;
 
 	UPROPERTY()
@@ -97,116 +97,117 @@ public:
 	UPROPERTY()
 	TSubclassOf<UBMeshFace> FaceClass;
 
-    ///////////////////////////////////////////////////////////////////////////
-    //#region [Topology Methods]
+	///////////////////////////////////////////////////////////////////////////
+	//#region [Topology Methods]
 
-    /**
-     * Add a new vertex to the mesh.
-     */
+	/**
+	 * Add a new vertex to the mesh.
+	 */
 	UBMeshVertex* AddVertex(UBMeshVertex* vert);
 
-    UBMeshVertex* AddVertex(FVector Location);
+	UBMeshVertex* AddVertex(FVector Location);
 
 	UBMeshVertex* AddVertex(float x, float y, float z);
 
-    /**
-     * Add a new edge between two vertices. If there is already such edge,
-     * return it without adding a new one.
-     * If the vertices are not part of the mesh, the behavior is undefined.
-     */
+	/**
+	 * Add a new edge between two vertices. If there is already such edge,
+	 * return it without adding a new one.
+	 * If the vertices are not part of the mesh, the behavior is undefined.
+	 */
 	UBMeshEdge* AddEdge(UBMeshVertex* vert1, UBMeshVertex* vert2);
 
-    UBMeshEdge* AddEdge(int v1, int v2)
-    {
-        return AddEdge(vertices[v1], vertices[v2]);
-    }
+	UBMeshEdge* AddEdge(int v1, int v2)
+	{
+		return AddEdge(Vertices[v1], Vertices[v2]);
+	}
 
-    /**
-     * Add a new face that connects the array of vertices provided.
-     * The vertices must be part of the mesh, otherwise the behavior is
-     * undefined.
-     * NB: There is no AddLoop, because a loop is an element of a face
-     */
+	/**
+	 * Add a new face that connects the array of vertices provided.
+	 * The vertices must be part of the mesh, otherwise the behavior is
+	 * undefined.
+	 * NB: There is no AddLoop, because a loop is an element of a face
+	 */
 	UBMeshFace* AddFace(TArrayView<UBMeshVertex*> fVerts);
 
-    inline UBMeshFace* AddFace(UBMeshVertex* v0, UBMeshVertex* v1)
-    {
-    	UBMeshVertex* Verts[] = {v0, v1};
-        return AddFace(Verts);
-    }
+	inline UBMeshFace* AddFace(UBMeshVertex* v0, UBMeshVertex* v1)
+	{
+		UBMeshVertex* Verts[] = {v0, v1};
+		return AddFace(Verts);
+	}
 
-    inline UBMeshFace* AddFace(UBMeshVertex* v0, UBMeshVertex* v1, UBMeshVertex* v2)
-    {
-    	UBMeshVertex* Verts[] = {v0, v1, v2};
-        return AddFace(Verts);
-    }
+	inline UBMeshFace* AddFace(UBMeshVertex* v0, UBMeshVertex* v1, UBMeshVertex* v2)
+	{
+		UBMeshVertex* Verts[] = {v0, v1, v2};
+		return AddFace(Verts);
+	}
 
-    inline UBMeshFace* AddFace(UBMeshVertex* v0, UBMeshVertex* v1, UBMeshVertex* v2, UBMeshVertex* v3)
-    {
-    	UBMeshVertex* Verts[] = {v0, v1, v2, v3};
-        return AddFace(Verts);
-    }
+	inline UBMeshFace* AddFace(UBMeshVertex* v0, UBMeshVertex* v1, UBMeshVertex* v2, UBMeshVertex* v3)
+	{
+		UBMeshVertex* Verts[] = {v0, v1, v2, v3};
+		return AddFace(Verts);
+	}
 
-    inline UBMeshFace* AddFace(int i0, int i1)
-    {
-    	UBMeshVertex* Verts[] = { vertices[i0], vertices[i1] };
-        return AddFace(Verts);
-    }
+	inline UBMeshFace* AddFace(int i0, int i1)
+	{
+		UBMeshVertex* Verts[] = {Vertices[i0], Vertices[i1]};
+		return AddFace(Verts);
+	}
 
-    inline UBMeshFace* AddFace(int i0, int i1, int i2)
-    {
-    	UBMeshVertex* Verts[] = { vertices[i0], vertices[i1], vertices[i2] };
-        return AddFace(Verts);
-    }
+	inline UBMeshFace* AddFace(int i0, int i1, int i2)
+	{
+		UBMeshVertex* Verts[] = {Vertices[i0], Vertices[i1], Vertices[i2]};
+		return AddFace(Verts);
+	}
 
-    inline UBMeshFace* AddFace(int i0, int i1, int i2, int i3)
-    {
-    	UBMeshVertex* Verts[] = { vertices[i0], vertices[i1], vertices[i2], vertices[i3] };
-        return AddFace(Verts);
-    }
+	inline UBMeshFace* AddFace(int i0, int i1, int i2, int i3)
+	{
+		UBMeshVertex* Verts[] = {Vertices[i0], Vertices[i1], Vertices[i2], Vertices[i3]};
+		return AddFace(Verts);
+	}
 
-    /**
-     * Return an edge that links vert1 to vert2 in the mesh (an arbitrary one
-     * if there are several such edges, which is possible with this structure).
-     * Return null if there is no edge between vert1 and vert2 in the mesh->
-     */
+	/**
+	 * Return an edge that links vert1 to vert2 in the mesh (an arbitrary one
+	 * if there are several such edges, which is possible with this structure).
+	 * Return null if there is no edge between vert1 and vert2 in the mesh->
+	 */
 	UBMeshEdge* FindEdge(UBMeshVertex* vert1, UBMeshVertex* vert2);
 
-    /**
-     * Remove the provided vertex from the mesh.
-     * Removing a vertex also removes all the edges/loops/faces that use it.
-     * If the vertex was not part of this mesh, the behavior is undefined.
-     */
+	/**
+	 * Remove the provided vertex from the mesh.
+	 * Removing a vertex also removes all the edges/loops/faces that use it.
+	 * If the vertex was not part of this mesh, the behavior is undefined.
+	 */
 	void RemoveVertex(UBMeshVertex* v);
 
-    /**
-     * Remove the provided edge from the mesh.
-     * Removing an edge also removes all associated loops/faces.
-     * If the edge was not part of this mesh, the behavior is undefined.
-     */
+	/**
+	 * Remove the provided edge from the mesh.
+	 * Removing an edge also removes all associated loops/faces.
+	 * If the edge was not part of this mesh, the behavior is undefined.
+	 */
 	void RemoveEdge(UBMeshEdge* e);
 
-    /**
-     * Removing a loop also removes associated face.
-     * used internally only, just RemoveFace(loop.face) outside of here.
-     */
+	/**
+	 * Removing a loop also removes associated face.
+	 * used internally only, just RemoveFace(loop.face) outside of here.
+	 */
 	void RemoveLoop(UBMeshLoop* l);
 
-    /**
-     * Remove the provided face from the mesh.
-     * If the face was not part of this mesh, the behavior is undefined.
-     * (actually almost ensured to be a true mess, but do as it pleases you :D)
-     */
+	/**
+	 * Remove the provided face from the mesh.
+	 * If the face was not part of this mesh, the behavior is undefined.
+	 * (actually almost ensured to be a true mess, but do as it pleases you :D)
+	 */
 	void RemoveFace(UBMeshFace* f);
 
-    struct BMESH_API FMakeParams
-    {
-	    TSubclassOf<UBMeshVertex> VertexClass;
-    	TSubclassOf<UBMeshEdge> EdgeClass;
-    	TSubclassOf<UBMeshLoop> LoopClass;
-    	TSubclassOf<UBMeshFace> FaceClass;
+	struct BMESH_API FMakeParams
+	{
+		TSubclassOf<UBMeshVertex> VertexClass;
+		TSubclassOf<UBMeshEdge> EdgeClass;
+		TSubclassOf<UBMeshLoop> LoopClass;
+		TSubclassOf<UBMeshFace> FaceClass;
 
-    	FMakeParams();
-    };
+		FMakeParams();
+	};
+
 	static UBMesh* Make(UObject* Outer = GetTransientPackage(), FMakeParams Params = FMakeParams());
 };

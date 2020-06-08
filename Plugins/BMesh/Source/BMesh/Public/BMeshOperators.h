@@ -131,66 +131,66 @@ public:
 	static void RegisterStructType()
 	{
 		UScriptStruct* ScriptStruct = TBaseStructure<StructType>::Get();
-		check (!StructTypeLerps.Contains(ScriptStruct));
+		check(!StructTypeLerps.Contains(ScriptStruct));
 		StructTypeLerps.Add(ScriptStruct, new TSpecificStructPropertyLerp<StructType>());
 	}
 
 	static void RegisterDefaultTypes();
-    /**
-     * Set all attributes in destination vertex to attr[v1] * (1 - t) + attr[v2] * t
-     * Overriding attributes: all in vertex 'destination', none in others.
-     */
-    static void AttributeLerp(UBMesh* mesh, UBMeshVertex* destination, UBMeshVertex* v1, UBMeshVertex* v2, float t);
+	/**
+	 * Set all attributes in destination vertex to attr[v1] * (1 - t) + attr[v2] * t
+	 * Overriding attributes: all in vertex 'destination', none in others.
+	 */
+	static void AttributeLerp(UBMesh* mesh, UBMeshVertex* destination, UBMeshVertex* v1, UBMeshVertex* v2, float t);
 
-    /**
-     * Subdivide a mesh, without smoothing it, trying to interpolate all
-     * available attributes as much as possible. After subdivision, all faces
-     * are quads.
-     * Overriding attributes: edge's id
-     */
-    static void Subdivide(UBMesh* mesh);
+	/**
+	 * Subdivide a mesh, without smoothing it, trying to interpolate all
+	 * available attributes as much as possible. After subdivision, all faces
+	 * are quads.
+	 * Overriding attributes: edge's id
+	 */
+	static void Subdivide(UBMesh* mesh);
 
-    ///////////////////////////////////////////////////////////////////////////
-    // [SquarifyQuads}
+	///////////////////////////////////////////////////////////////////////////
+	// [SquarifyQuads}
 
-    /**
-     * Axis local to a quad face where r0, ..., r3 are vectors from the face
-     * center to its vertices.
-     */
-    static FMatrix ComputeLocalAxis(FVector r0, FVector r1, FVector r2, FVector r3);
+	/**
+	 * Axis local to a quad face where r0, ..., r3 are vectors from the face
+	 * center to its vertices.
+	 */
+	static FMatrix ComputeLocalAxis(FVector r0, FVector r1, FVector r2, FVector r3);
 
-    static float AverageRadiusLength(UBMesh* mesh);
+	static float AverageRadiusLength(UBMesh* mesh);
 
-    /**
-     * Try to make quads as square as possible (may be called iteratively).
-     * This is not a very common operation but was developed so I keep it here.
-     * This assumes that the mesh is only made of quads.
-     * Overriding attributes: vertex's id
-     * Optionally read vertex attributes:
-     *   - RestPos: a FVector telling which position attracts the vertex
-     *   - Weight: a float telling to which extent the RestPos must be
-     *             considered.
-     *   
-     * @param rate speed at which faces are squarified. A higher rate goes
-     *        faster but there is a risk for overshooting.
-     * @param uniformLength whether the size of the quads must be uniformized.
-     */
-    static void SquarifyQuads(UBMesh* mesh, float rate = 1.0f, bool uniformLength = false);
+	/**
+	 * Try to make quads as square as possible (may be called iteratively).
+	 * This is not a very common operation but was developed so I keep it here.
+	 * This assumes that the mesh is only made of quads.
+	 * Overriding attributes: vertex's id
+	 * Optionally read vertex attributes:
+	 *   - RestPos: a FVector telling which position attracts the vertex
+	 *   - Weight: a float telling to which extent the RestPos must be
+	 *             considered.
+	 *   
+	 * @param rate speed at which faces are squarified. A higher rate goes
+	 *        faster but there is a risk for overshooting.
+	 * @param uniformLength whether the size of the quads must be uniformized.
+	 */
+	static void SquarifyQuads(UBMesh* mesh, float rate = 1.0f, bool uniformLength = false);
 
-    //#endregion
+	//#endregion
 
-    ///////////////////////////////////////////////////////////////////////////
-    // [Merge]
+	///////////////////////////////////////////////////////////////////////////
+	// [Merge]
 
-    /**
-     * Add all vertices/edges/faces from another mesh, and fix attributes if
-     * needed.
-     * Overriding attributes: vertex's id (of the first mesh only)
-     */
-    static void Merge(UBMesh* mesh, UBMesh* other);
+	/**
+	 * Add all vertices/edges/faces from another mesh, and fix attributes if
+	 * needed.
+	 * Overriding attributes: vertex's id (of the first mesh only)
+	 */
+	static void Merge(UBMesh* mesh, UBMesh* other);
 
-    ///////////////////////////////////////////////////////////////////////////
-    ///
+	///////////////////////////////////////////////////////////////////////////
+	///
 
 	/**
      * Draw details about the BMesh structure un the viewport.
@@ -202,5 +202,5 @@ public:
 
 	static void DrawPrimitives(UWorld* World, FTransform LocalToWorld, UBMesh* mesh);
 
-	static void DrawPrimitives(TFunction<void (FVector, FVector, FColor)> DrawLine, UBMesh* mesh);
+	static void DrawPrimitives(TFunction<void(FVector, FVector, FColor)> DrawLine, UBMesh* mesh);
 };

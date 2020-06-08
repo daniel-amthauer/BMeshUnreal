@@ -26,7 +26,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
- 
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -51,31 +51,31 @@ public:
 	int Id; // [attribute]
 
 	UPROPERTY()
-    int VertCount; // stored for commodity, can be recomputed easily
+	int VertCount; // stored for commodity, can be recomputed easily
 
 	UPROPERTY()
-    UBMeshLoop* FirstLoop; // navigate list using next
+	UBMeshLoop* FirstLoop; // navigate list using next
 
-	 /**
-     * Get the list of vertices used by the face, ordered.
-     */
-    TArray<UBMeshVertex*> NeighborVertices();
+	/**
+    * Get the list of vertices used by the face, ordered.
+    */
+	TArray<UBMeshVertex*> NeighborVertices();
 
-    /**
-     * Assuming the vertex is part of the face, return the loop such that
-     * loop->Vert = v. Return null otherwise.
-     */
-    UBMeshLoop* FindLoop(UBMeshVertex* v);
+	/**
+	 * Assuming the vertex is part of the face, return the loop such that
+	 * loop->Vert = v. Return null otherwise.
+	 */
+	UBMeshLoop* FindLoop(UBMeshVertex* v);
 
-    /**
-     * Get the list of edges around the face.
-     * It is garrantied to match the order of NeighborVertices(), so that
-     * edge[0] = Vert[0]-->Vert[1], edge[1] = Vert[1]-->Vert[2], etc.
-     */
-    TArray<UBMeshEdge*> NeighborEdges();
+	/**
+	 * Get the list of edges around the face.
+	 * It is garrantied to match the order of NeighborVertices(), so that
+	 * edge[0] = Vert[0]-->Vert[1], edge[1] = Vert[1]-->Vert[2], etc.
+	 */
+	TArray<UBMeshEdge*> NeighborEdges();
 
-    /**
-     * Compute the barycenter of the face vertices
-     */
-    FVector Center();
+	/**
+	 * Compute the barycenter of the face vertices
+	 */
+	FVector Center();
 };

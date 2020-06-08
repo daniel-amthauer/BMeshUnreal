@@ -26,7 +26,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
- 
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -63,70 +63,70 @@ class BMESH_API UBMeshEdge : public UObject
 	GENERATED_BODY()
 public:
 	UPROPERTY()
-    int Id; // [attribute]
-	
-	UPROPERTY()
-    UBMeshVertex* Vert1;
+	int Id; // [attribute]
 
 	UPROPERTY()
-    UBMeshVertex* Vert2;
+	UBMeshVertex* Vert1;
 
 	UPROPERTY()
-    UBMeshEdge* Next1; // next edge around vert1. If you don't know whether your vertex is vert1 or vert2, use Next(v)
+	UBMeshVertex* Vert2;
 
 	UPROPERTY()
-    UBMeshEdge* Next2; // next edge around vert1
+	UBMeshEdge* Next1; // next edge around vert1. If you don't know whether your vertex is vert1 or vert2, use Next(v)
 
 	UPROPERTY()
-    UBMeshEdge* Prev1;
+	UBMeshEdge* Next2; // next edge around vert1
 
 	UPROPERTY()
-    UBMeshEdge* Prev2;
+	UBMeshEdge* Prev1;
 
 	UPROPERTY()
-    UBMeshLoop* Loop; // first node of the list of faces that use this edge. Navigate list using radial_next
+	UBMeshEdge* Prev2;
+
+	UPROPERTY()
+	UBMeshLoop* Loop; // first node of the list of faces that use this edge. Navigate list using radial_next
 
 	static UBMeshEdge* MakeEdge(TSubclassOf<UBMeshEdge> EdgeClass, UBMeshVertex* Vertex1, UBMeshVertex* Vertex2);
 
 	/**
      * Tells whether a vertex is one of the extremities of this edge.
      */
-    bool ContainsVertex(UBMeshVertex * v) const;
+	bool ContainsVertex(UBMeshVertex* v) const;
 
-    /**
-     * If one gives a vertex of the edge to this function, it returns the
-     * other vertex of the edge. Otherwise, the behavior is undefined.
-     */
-    UBMeshVertex* OtherVertex(UBMeshVertex* v) const;
+	/**
+	 * If one gives a vertex of the edge to this function, it returns the
+	 * other vertex of the edge. Otherwise, the behavior is undefined.
+	 */
+	UBMeshVertex* OtherVertex(UBMeshVertex* v) const;
 
-    /**
-     * If one gives a vertex of the edge to this function, it returns the
-     * next edge in the linked list of edges that use this vertex.
-     */
-    UBMeshEdge* Next(UBMeshVertex* v) const;
+	/**
+	 * If one gives a vertex of the edge to this function, it returns the
+	 * next edge in the linked list of edges that use this vertex.
+	 */
+	UBMeshEdge* Next(UBMeshVertex* v) const;
 
-    /**
-     * This is used when inserting a new Edge in the lists.
-     */
-    void SetNext(UBMeshVertex* v, UBMeshEdge* other);
+	/**
+	 * This is used when inserting a new Edge in the lists.
+	 */
+	void SetNext(UBMeshVertex* v, UBMeshEdge* other);
 
-    /**
-     * Similar to Next() but to go backward in the double-linked list
-     */
-    UBMeshEdge* Prev(UBMeshVertex* v) const;
+	/**
+	 * Similar to Next() but to go backward in the double-linked list
+	 */
+	UBMeshEdge* Prev(UBMeshVertex* v) const;
 
-    /**
-     * Similar to SetNext()
-     */
-    void SetPrev(UBMeshVertex* v, UBMeshEdge* other);
+	/**
+	 * Similar to SetNext()
+	 */
+	void SetPrev(UBMeshVertex* v, UBMeshEdge* other);
 
-    /**
-     * Return all faces that use this edge as a side.
-     */
-    TArray<UBMeshFace*> NeighborFaces() const;
+	/**
+	 * Return all faces that use this edge as a side.
+	 */
+	TArray<UBMeshFace*> NeighborFaces() const;
 
-    /**
-     * Compute the barycenter of the edge's vertices
-     */
+	/**
+	 * Compute the barycenter of the edge's vertices
+	 */
 	FVector Center() const;
 };

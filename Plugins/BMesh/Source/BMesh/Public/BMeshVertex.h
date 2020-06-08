@@ -36,15 +36,15 @@
 class UBMeshEdge;
 class UBMeshFace;
 
- /**
- * A vertex corresponds roughly to a position in space. Many primitives
- * (edges, faces) can share a given vertex. Several vertices can be located
- * at the very same position.
- * A references a chained list of the edges that use it embeded inside the Edge
- * structure (see bellow, and see implementation of NeighborEdges).
- * The vertex position does not affect topological algorithm but is used by
- * commodity functions that helps finding the center of an edge or a face.
- */
+/**
+* A vertex corresponds roughly to a position in space. Many primitives
+* (edges, faces) can share a given vertex. Several vertices can be located
+* at the very same position.
+* A references a chained list of the edges that use it embeded inside the Edge
+* structure (see bellow, and see implementation of NeighborEdges).
+* The vertex position does not affect topological algorithm but is used by
+* commodity functions that helps finding the center of an edge or a face.
+*/
 UCLASS()
 class BMESH_API UBMeshVertex : public UObject
 {
@@ -52,10 +52,10 @@ class BMESH_API UBMeshVertex : public UObject
 public:
 	UPROPERTY()
 	int Id;
-	
+
 	UPROPERTY()
 	FVector Location;
-	
+
 	UPROPERTY()
 	UBMeshEdge* Edge;
 

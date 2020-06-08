@@ -26,7 +26,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
- 
+
 #include "BMesh.h"
 
 #include "BMeshVertex.h"
@@ -36,15 +36,15 @@
 
 UBMeshVertex* UBMesh::AddVertex(UBMeshVertex* vert)
 {
-	vertices.Add(vert);
+	Vertices.Add(vert);
 	return vert;
 }
 
 UBMeshVertex* UBMesh::AddVertex(FVector Location)
 {
-    UBMeshVertex* Vertex = NewObject<UBMeshVertex>(this, *VertexClass);
-    Vertex->Location = Location;
-    return AddVertex(Vertex);
+	UBMeshVertex* Vertex = NewObject<UBMeshVertex>(this, *VertexClass);
+	Vertex->Location = Location;
+	return AddVertex(Vertex);
 }
 
 UBMeshVertex* UBMesh::AddVertex(float x, float y, float z)
@@ -60,7 +60,7 @@ UBMeshEdge* UBMesh::AddEdge(UBMeshVertex* vert1, UBMeshVertex* vert2)
 	if (edge != nullptr) return edge;
 
 	edge = UBMeshEdge::MakeEdge(EdgeClass, vert1, vert2);
-	edges.Add(edge);
+	Edges.Add(edge);
 
 	// Insert in vert1's edge list
 	if (vert1->Edge == nullptr)
@@ -109,12 +109,12 @@ UBMeshFace* UBMesh::AddFace(TArrayView<UBMeshVertex*> fVerts)
 	}
 
 	UBMeshFace* f = NewObject<UBMeshFace>(this, *FaceClass);
-	faces.Add(f);
+	Faces.Add(f);
 
 	for (i = 0; i < fVerts.Num(); ++i)
 	{
 		UBMeshLoop* loop = UBMeshLoop::MakeLoop(LoopClass, fVerts[i], fEdges[i], f);
-		loops.Add(loop);
+		Loops.Add(loop);
 	}
 
 	f->VertCount = fVerts.Num();
@@ -141,18 +141,18 @@ UBMeshEdge* UBMesh::FindEdge(UBMeshVertex* vert1, UBMeshVertex* vert2)
 
 void UBMesh::RemoveVertex(UBMeshVertex* v)
 {
-	check(vertices.Contains(v));
+	check(Vertices.Contains(v));
 	while (v->Edge != nullptr)
 	{
 		RemoveEdge(v->Edge);
 	}
 
-	vertices.Remove(v);
+	Vertices.Remove(v);
 }
 
 void UBMesh::RemoveEdge(UBMeshEdge* e)
 {
-	check(edges.Contains(e));
+	check(Edges.Contains(e));
 	while (e->Loop != nullptr)
 	{
 		RemoveLoop(e->Loop);
@@ -169,7 +169,7 @@ void UBMesh::RemoveEdge(UBMeshEdge* e)
 	e->Prev2->SetNext(e->Vert2, e->Next2);
 	e->Next2->SetPrev(e->Vert2, e->Prev2);
 
-	edges.Remove(e);
+	Edges.Remove(e);
 }
 
 void UBMesh::RemoveLoop(UBMeshLoop* l)
@@ -200,12 +200,12 @@ void UBMesh::RemoveLoop(UBMeshLoop* l)
 	l->Next = nullptr;
 	l->Prev = nullptr;
 
-	loops.Remove(l);
+	Loops.Remove(l);
 }
 
 void UBMesh::RemoveFace(UBMeshFace* f)
 {
-	check(faces.Contains(f));
+	check(Faces.Contains(f));
 	UBMeshLoop* l = f->FirstLoop;
 	UBMeshLoop* nextL = nullptr;
 	while (nextL != f->FirstLoop)
@@ -215,7 +215,7 @@ void UBMesh::RemoveFace(UBMeshFace* f)
 		RemoveLoop(l);
 		l = nextL;
 	}
-	faces.Remove(f);
+	Faces.Remove(f);
 }
 
 UBMesh::FMakeParams::FMakeParams()

@@ -42,7 +42,6 @@ TMap<UScriptStruct*, FBMeshOperators::FPropertyLerp*> FBMeshOperators::StructTyp
 
 FBMeshOperators::FPropertyLerp::~FPropertyLerp()
 {
-	
 }
 
 void FBMeshOperators::FStructPropertyLerp::Lerp(FProperty* Property, UBMeshVertex* destination, UBMeshVertex* v1,
@@ -86,10 +85,10 @@ void FBMeshOperators::Subdivide(UBMesh* mesh)
 {
 	int i = 0;
 	TArray<UBMeshVertex*> edgeCenters;
-	edgeCenters.SetNum(mesh->edges.Num());
+	edgeCenters.SetNum(mesh->Edges.Num());
 	TArray<UBMeshEdge*> originalEdges;
-	originalEdges.SetNum(mesh->edges.Num());
-	for(UBMeshEdge* e : mesh->edges)
+	originalEdges.SetNum(mesh->Edges.Num());
+	for (UBMeshEdge* e : mesh->Edges)
 	{
 		edgeCenters[i] = mesh->AddVertex(e->Center());
 		AttributeLerp(mesh, edgeCenters[i], e->Vert1, e->Vert2, 0.5f);
@@ -97,8 +96,8 @@ void FBMeshOperators::Subdivide(UBMesh* mesh)
 		e->Id = i++;
 	}
 
-	TArray<UBMeshFace*> originalFaces = mesh->faces; // copy because mesh.faces changes during iterations
-	for(UBMeshFace* f : originalFaces)
+	TArray<UBMeshFace*> originalFaces = mesh->Faces; // copy because mesh.faces changes during iterations
+	for (UBMeshFace* f : originalFaces)
 	{
 		UBMeshVertex* faceCenter = mesh->AddVertex(f->Center());
 		float w = 0;
@@ -110,7 +109,7 @@ void FBMeshOperators::Subdivide(UBMesh* mesh)
 			w += 1;
 			AttributeLerp(mesh, faceCenter, faceCenter, it->Vert, 1 / w);
 
-			UBMeshVertex* quad [] = {
+			UBMeshVertex* quad[] = {
 				it->Vert,
 				edgeCenters[it->Edge->Id],
 				faceCenter,
@@ -126,7 +125,7 @@ void FBMeshOperators::Subdivide(UBMesh* mesh)
 	}
 
 	// Remove old edges
-	for(UBMeshEdge* e : originalEdges)
+	for (UBMeshEdge* e : originalEdges)
 	{
 		mesh->RemoveEdge(e);
 	}
@@ -134,23 +133,23 @@ void FBMeshOperators::Subdivide(UBMesh* mesh)
 
 FMatrix FBMeshOperators::ComputeLocalAxis(FVector r0, FVector r1, FVector r2, FVector r3)
 {
-    FVector Z = (
-              FVector::CrossProduct(r0, r1).GetSafeNormal()
-            + FVector::CrossProduct(r1, r2).GetSafeNormal()
-            + FVector::CrossProduct(r2, r3).GetSafeNormal()
-            + FVector::CrossProduct(r3, r0).GetSafeNormal()
-        ).GetSafeNormal();
-    FVector X = r0.GetSafeNormal();
-    FVector Y = FVector::CrossProduct(Z, X);
-    FMatrix localToGlobal = FMatrix(X, Y, Z, FVector::ZeroVector);
-    return localToGlobal;
+	FVector Z = (
+		FVector::CrossProduct(r0, r1).GetSafeNormal()
+		+ FVector::CrossProduct(r1, r2).GetSafeNormal()
+		+ FVector::CrossProduct(r2, r3).GetSafeNormal()
+		+ FVector::CrossProduct(r3, r0).GetSafeNormal()
+	).GetSafeNormal();
+	FVector X = r0.GetSafeNormal();
+	FVector Y = FVector::CrossProduct(Z, X);
+	FMatrix localToGlobal = FMatrix(X, Y, Z, FVector::ZeroVector);
+	return localToGlobal;
 }
 
 float FBMeshOperators::AverageRadiusLength(UBMesh* mesh)
 {
 	float lengthsum = 0;
 	float weightsum = 0;
-	for(UBMeshFace* f : mesh->faces)
+	for (UBMeshFace* f : mesh->Faces)
 	{
 		FVector c = f->Center();
 		TArray<UBMeshVertex*> verts = f->NeighborVertices();
@@ -193,9 +192,9 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 	}
 
 	TArray<FVector> pointUpdates;
-	pointUpdates.SetNum(mesh->vertices.Num());
+	pointUpdates.SetNum(mesh->Vertices.Num());
 	TArray<float> weights;
-	weights.SetNum(mesh->vertices.Num());
+	weights.SetNum(mesh->Vertices.Num());
 
 	FStructProperty* RestposProperty = CastField<FStructProperty>(mesh->VertexClass->FindPropertyByName(FName("RestPos")));
 	FFloatProperty* WeightProperty = CastField<FFloatProperty>(mesh->VertexClass->FindPropertyByName(FName("Weight")));
@@ -206,7 +205,7 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 	{
 		if (WeightProperty)
 		{
-			for(UBMeshVertex* v : mesh->vertices)
+			for (UBMeshVertex* v :  mesh->Vertices)
 			{
 				weights[i] = *WeightProperty->ContainerPtrToValuePtr<float>(v);
 				auto restpos = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
@@ -216,7 +215,7 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 		}
 		else
 		{
-			for(UBMeshVertex* v : mesh->vertices)
+			for (UBMeshVertex* v : mesh->Vertices)
 			{
 				weights[i] = 1;
 				auto restpos = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
@@ -227,7 +226,7 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 	}
 	else
 	{
-		for(UBMeshVertex* v : mesh->vertices)
+		for (UBMeshVertex* v : mesh->Vertices)
 		{
 			weights[i] = 0.0f;
 			pointUpdates[i] = FVector::ZeroVector;
@@ -236,7 +235,7 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 	}
 
 	// Accumulate updates
-	for(UBMeshFace* f : mesh->faces)
+	for (UBMeshFace* f : mesh->Faces)
 	{
 		FVector c = f->Center();
 		TArray<UBMeshVertex*> verts = f->NeighborVertices();
@@ -311,7 +310,7 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 
 	// Apply updates
 	i = 0;
-	for(UBMeshVertex* v:mesh->vertices)
+	for (UBMeshVertex* v : mesh->Vertices)
 	{
 		if (weights[i] > 0)
 		{
@@ -343,14 +342,14 @@ void FBMeshOperators::DrawPrimitives(TFunction<void(FVector, FVector, FColor)> D
 {
 	auto DrawRay = [=](FVector Start, FVector Dir, FColor Color)
 	{
-		DrawLine(Start, Start+Dir, Color);
+		DrawLine(Start, Start + Dir, Color);
 	};
-	
-	for(auto e : mesh->edges)
+
+	for (auto e : mesh->Edges)
 	{
 		DrawLine(e->Vert1->Location, e->Vert2->Location, FColor::Yellow);
 	}
-	for(auto l : mesh->loops)
+	for (auto l : mesh->Loops)
 	{
 		UBMeshVertex* Vert = l->Vert;
 		UBMeshVertex* other = l->Edge->OtherVertex(Vert);
@@ -362,24 +361,24 @@ void FBMeshOperators::DrawPrimitives(TFunction<void(FVector, FVector, FColor)> D
 		DrawRay(no, (nother->Location - no) * 0.1f, FColor::Red);
 	}
 	int i = 0;
-	for(auto f : mesh->faces)
+	for (auto f : mesh->Faces)
 	{
 		FVector c = f->Center();
 		DrawLine(c, f->FirstLoop->Vert->Location, FColor::Green);
 		DrawRay(c, (f->FirstLoop->Next->Vert->Location - c) * 0.2f, FColor::Green);
 #if WITH_EDITOR
-            //Handles->Label(c, "f" + i);
-            ++i;
+		//Handles->Label(c, "f" + i);
+		++i;
 #endif // WITH_EDITOR
 	}
 
 	i = 0;
-	for(UBMeshVertex* v : mesh->vertices)
+	for (UBMeshVertex* v : mesh->Vertices)
 	{
 #if WITH_EDITOR
 		//auto uv = v->attributes["uv"] as BMesh->FloatAttributeValue;
-            //Handles->Label(v->Location, "" + i);
-            ++i;
+		//Handles->Label(v->Location, "" + i);
+		++i;
 #endif // WITH_EDITOR
 	}
 }

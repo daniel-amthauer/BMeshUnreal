@@ -26,8 +26,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
- 
- //Convenience header to include most frequently used BMesh components
+
+//Convenience header to include most frequently used BMesh components
 
 #pragma once
 

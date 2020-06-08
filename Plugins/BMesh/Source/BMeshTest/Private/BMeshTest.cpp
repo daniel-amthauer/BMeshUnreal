@@ -107,7 +107,7 @@ FPrimitiveSceneProxy* UBMeshTestComponent::CreateSceneProxy()
 						FStructProperty* ColorProperty = CastField<FStructProperty>(BMesh->VertexClass->FindPropertyByName(FName("Color")));
 						if (ColorProperty && ColorProperty->Struct == TBaseStructure<FLinearColor>::Get())
 						{
-							for (UBMeshVertex* Vert : BMesh->vertices)
+							for (UBMeshVertex* Vert : BMesh->Vertices)
 							{
 								FLinearColor* VertColorPtr = ColorProperty->ContainerPtrToValuePtr<FLinearColor>(Vert);
 								PDI->DrawPoint(LocalToWorld.TransformPosition(Vert->Location), *VertColorPtr, 10.0f, SDPG_World);
@@ -153,7 +153,7 @@ void UBMeshTestComponent::HexagonTest()
 		Vec = Vec.RotateAngleAxis(60*i, FVector(0,1,0));
 		TestBMesh->AddVertex(Vec);
 	}
-	TestBMesh->AddFace(TestBMesh->vertices);
+	TestBMesh->AddFace(TestBMesh->Vertices);
 	
 	MarkRenderStateDirty();
 }
@@ -167,18 +167,18 @@ void UBMeshTestComponent::Test1()
     UBMeshVertex* v2 = TestBMesh->AddVertex(FVector(0, 0.0f, FMath::Sqrt(3) / 3));
     UBMeshFace* f = TestBMesh->AddFace(v0, v1, v2);
 
-    ensureMsgf(TestBMesh->vertices.Num() == 3, TEXT("vert count"));
-    ensureMsgf(TestBMesh->loops.Num() == 3, TEXT("loop count"));
-    ensureMsgf(TestBMesh->edges.Num() == 3, TEXT("edge count"));
-    ensureMsgf(TestBMesh->faces.Num() == 1, TEXT("face count"));
+    ensureMsgf(TestBMesh->Vertices.Num() == 3, TEXT("vert count"));
+    ensureMsgf(TestBMesh->Loops.Num() == 3, TEXT("loop count"));
+    ensureMsgf(TestBMesh->Edges.Num() == 3, TEXT("edge count"));
+    ensureMsgf(TestBMesh->Faces.Num() == 1, TEXT("face count"));
 
-    UBMeshLoop* l = TestBMesh->loops[0];
+    UBMeshLoop* l = TestBMesh->Loops[0];
     for (int i = 0; i < 3; ++i)
     {
-        auto v = TestBMesh->vertices[i];
-        ensureMsgf(TestBMesh->loops[i]->Face == f, TEXT("loop has face"));
-        ensureMsgf(TestBMesh->loops[i]->Edge != nullptr, TEXT("loop has edge"));
-        ensureMsgf(TestBMesh->edges[i]->Loop != nullptr, TEXT("edge has loop"));
+        auto v = TestBMesh->Vertices[i];
+        ensureMsgf(TestBMesh->Loops[i]->Face == f, TEXT("loop has face"));
+        ensureMsgf(TestBMesh->Loops[i]->Edge != nullptr, TEXT("loop has edge"));
+        ensureMsgf(TestBMesh->Edges[i]->Loop != nullptr, TEXT("edge has loop"));
         ensureMsgf(v->Edge != nullptr, TEXT("vertex has edge"));
         ensureMsgf(v->Edge->Vert1 == v || v->Edge->Vert2 == v, TEXT("vertex is in vertex edge"));
         ensureMsgf(l->Next != l, TEXT("loop has next"));
@@ -186,7 +186,7 @@ void UBMeshTestComponent::Test1()
         ensureMsgf(l->RadialNext->RadialPrev == l, TEXT("loop has consistent radial next"));
         l = l->Next;
     }
-    ensureMsgf(l == TestBMesh->loops[0], TEXT("loop loops"));
+    ensureMsgf(l == TestBMesh->Loops[0], TEXT("loop loops"));
 
     ensureMsgf(TestBMesh->FindEdge(v0, v1) != nullptr, TEXT("edge between v0 and v1"));
     ensureMsgf(TestBMesh->FindEdge(v0, v2) != nullptr, TEXT("edge between v0 and v2"));
@@ -207,10 +207,10 @@ void UBMeshTestComponent::Test2()
 	UBMeshVertex* v3 = TestBMesh->AddVertex(FVector(1, 0, -1));
     UBMeshFace* f = TestBMesh->AddFace(v0, v1, v2, v3);
 
-    ensureMsgf(TestBMesh->vertices.Num() == 4, TEXT("vert count"));
-    ensureMsgf(TestBMesh->loops.Num() == 4, TEXT("loop count"));
-    ensureMsgf(TestBMesh->edges.Num() == 4, TEXT("edge count"));
-    ensureMsgf(TestBMesh->faces.Num() == 1, TEXT("face count"));
+    ensureMsgf(TestBMesh->Vertices.Num() == 4, TEXT("vert count"));
+    ensureMsgf(TestBMesh->Loops.Num() == 4, TEXT("loop count"));
+    ensureMsgf(TestBMesh->Edges.Num() == 4, TEXT("edge count"));
+    ensureMsgf(TestBMesh->Faces.Num() == 1, TEXT("face count"));
 
     // Edges
     UBMeshEdge* e0 = TestBMesh->FindEdge(v0, v1);
@@ -251,19 +251,19 @@ void UBMeshTestComponent::Test2()
 
     for (int i = 0; i < 4; ++i)
     {
-        auto v = TestBMesh->vertices[i];
-        ensure(TestBMesh->loops[i]->Face == f);
+        auto v = TestBMesh->Vertices[i];
+        ensure(TestBMesh->Loops[i]->Face == f);
         ensure(v->Edge != nullptr);
         ensure(v->Edge->Vert1 == v || v->Edge->Vert2 == v);
     }
 
     ensureMsgf(TestBMesh->FindEdge(v0, v1) != nullptr, TEXT("edge between v0 and v1"));
 
-    TestBMesh->RemoveEdge(TestBMesh->edges[0]);
-    ensureMsgf(TestBMesh->vertices.Num() == 4, TEXT("vert count after removing edge"));
-    ensureMsgf(TestBMesh->loops.Num() == 0, TEXT("loop count after removing edge"));
-    ensureMsgf(TestBMesh->edges.Num() == 3, TEXT("edge count after removing edge"));
-    ensureMsgf(TestBMesh->faces.Num() == 0, TEXT("face count after removing edge"));
+    TestBMesh->RemoveEdge(TestBMesh->Edges[0]);
+    ensureMsgf(TestBMesh->Vertices.Num() == 4, TEXT("vert count after removing edge"));
+    ensureMsgf(TestBMesh->Loops.Num() == 0, TEXT("loop count after removing edge"));
+    ensureMsgf(TestBMesh->Edges.Num() == 3, TEXT("edge count after removing edge"));
+    ensureMsgf(TestBMesh->Faces.Num() == 0, TEXT("face count after removing edge"));
 
     UE_LOG(LogTemp, Log, TEXT("TestBMesh #2 passed."));
 
@@ -281,15 +281,15 @@ void UBMeshTestComponent::Test3()
     UBMeshFace* f0 = TestBMesh->AddFace(v0, v1, v2);
 	UBMeshFace* f1 = TestBMesh->AddFace(v2, v1, v3);
 
-	ensureMsgf(TestBMesh->vertices.Num() == 4, TEXT("vert count"));
-    ensureMsgf(TestBMesh->loops.Num() == 6, TEXT("loop count"));
-    ensureMsgf(TestBMesh->edges.Num() == 5, TEXT("edge count"));
-    ensureMsgf(TestBMesh->faces.Num() == 2, TEXT("face count"));
+	ensureMsgf(TestBMesh->Vertices.Num() == 4, TEXT("vert count"));
+    ensureMsgf(TestBMesh->Loops.Num() == 6, TEXT("loop count"));
+    ensureMsgf(TestBMesh->Edges.Num() == 5, TEXT("edge count"));
+    ensureMsgf(TestBMesh->Faces.Num() == 2, TEXT("face count"));
 
 	ensureMsgf(v0->NeighborFaces().Num() == 1, TEXT("v0 has one neighbor face (found count: %d)"), v0->NeighborFaces().Num());
 	ensureMsgf(v1->NeighborFaces().Num() == 2, TEXT("v1 has two neighbor face (found count: %d)"), v1->NeighborFaces().Num());
 
-	for (UBMeshLoop* l : TestBMesh->loops)
+	for (UBMeshLoop* l : TestBMesh->Loops)
 	{
 		ensureMsgf(l->Next != nullptr, TEXT("loop has a next loop"));
 		ensureMsgf(l->Prev != nullptr, TEXT("loop has a prev loop"));
@@ -302,7 +302,7 @@ void UBMeshTestComponent::Test3()
 	ensureMsgf(f0->FindLoop(v3) == nullptr, TEXT("loop with vertex v3 should not exist in face f0"));
 
 	UBMeshEdge* e0 = nullptr;
-	for (UBMeshEdge* e : TestBMesh->edges)
+	for (UBMeshEdge* e : TestBMesh->Edges)
 	{
 		if ((e->Vert1 == v1 && e->Vert2 == v2) || (e->Vert1 == v2 && e->Vert2 == v1))
 		{
@@ -313,12 +313,12 @@ void UBMeshTestComponent::Test3()
 
 	ensureMsgf(e0 != nullptr, TEXT("found edge between v1 and v2"));
 	TestBMesh->RemoveEdge(e0);
-	ensureMsgf(TestBMesh->vertices.Num() == 4, TEXT("vert count after removing edge"));
-	ensureMsgf(TestBMesh->loops.Num() == 0, TEXT("loop count after removing edge"));
-	ensureMsgf(TestBMesh->edges.Num() == 4, TEXT("edge count after removing edge"));
-	ensureMsgf(TestBMesh->faces.Num() == 0, TEXT("face count after removing edge"));
+	ensureMsgf(TestBMesh->Vertices.Num() == 4, TEXT("vert count after removing edge"));
+	ensureMsgf(TestBMesh->Loops.Num() == 0, TEXT("loop count after removing edge"));
+	ensureMsgf(TestBMesh->Edges.Num() == 4, TEXT("edge count after removing edge"));
+	ensureMsgf(TestBMesh->Faces.Num() == 0, TEXT("face count after removing edge"));
 
-    for (UBMeshLoop* l : TestBMesh->loops)
+    for (UBMeshLoop* l : TestBMesh->Loops)
 	{
 		ensureMsgf(l->Next != nullptr, TEXT("loop still has a next loop"));
 		ensureMsgf(l->Prev != nullptr, TEXT("loop still has a prev loop"));
@@ -355,13 +355,13 @@ FBoxSphereBounds UBMeshTestComponent::CalcBounds(const FTransform& LocalToWorld)
 {
 	FBox BoundingBox(ForceInit);
 
-	// Bounds are tighter if the box is generated from pre-transformed vertices.
+	// Bounds are tighter if the box is generated from pre-transformed Vertices.
 
 	if (TestBMesh)
 	{
-		for (int32 Index = 0; Index < TestBMesh->vertices.Num(); ++Index)
+		for (int32 Index = 0; Index < TestBMesh->Vertices.Num(); ++Index)
 		{
-			BoundingBox += LocalToWorld.TransformPosition(TestBMesh->vertices[Index]->Location);
+			BoundingBox += LocalToWorld.TransformPosition(TestBMesh->Vertices[Index]->Location);
 		}
 	}
 

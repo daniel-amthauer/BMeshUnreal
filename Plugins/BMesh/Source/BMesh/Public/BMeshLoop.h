@@ -62,22 +62,22 @@ public:
 	UBMeshVertex* Vert;
 
 	UPROPERTY()
-    UBMeshEdge* Edge;
+	UBMeshEdge* Edge;
 
 	UPROPERTY()
-    UBMeshFace* Face; // there is exactly one face using a loop
+	UBMeshFace* Face; // there is exactly one face using a loop
 
 	UPROPERTY()
-    UBMeshLoop* RadialPrev; // around edge
+	UBMeshLoop* RadialPrev; // around edge
 
 	UPROPERTY()
-    UBMeshLoop* RadialNext;
+	UBMeshLoop* RadialNext;
 
 	UPROPERTY()
-    UBMeshLoop* Prev; // around face
+	UBMeshLoop* Prev; // around face
 
 	UPROPERTY()
-    UBMeshLoop* Next;
+	UBMeshLoop* Next;
 
 	static UBMeshLoop* MakeLoop(TSubclassOf<UBMeshLoop> LoopClass, UBMeshVertex* Vertex, UBMeshEdge* Edge, UBMeshFace* Face);
 
