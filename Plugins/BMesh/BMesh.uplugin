@@ -1,0 +1,30 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "BMesh for Unreal",
+	"Description": "Makes runtime procedural mesh generation more flexible",
+	"Category": "Utilities",
+	"CreatedBy": "Daniel Amthauer",
+	"CreatedByURL": "https://github.com/daniel-amthauer/BMeshUnreal",
+	"DocsURL": "https://github.com/daniel-amthauer/BMeshUnreal",
+	"MarketplaceURL": "",
+	"SupportURL": "https://github.com/daniel-amthauer/BMeshUnreal/issues",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "BMesh",
+			"Type": "Runtime",
+			"LoadingPhase": "PreLoadingScreen"
+		},
+		{
+			"Name": "BMeshTest",
+			"Type": "Runtime",
+			"LoadingPhase": "PreLoadingScreen"
+		}
+	],
+	"Plugins": [
+	]
+}
