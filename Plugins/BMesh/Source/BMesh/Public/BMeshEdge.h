@@ -57,7 +57,7 @@ class UBMeshFace;
  * next one, so the function Next() is provided to return either next1 or
  * next2 depending on the vertex of interest.
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class BMESH_API UBMeshEdge : public UObject
 {
 	GENERATED_BODY()

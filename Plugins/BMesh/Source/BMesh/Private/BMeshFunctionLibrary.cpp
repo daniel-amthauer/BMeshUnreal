@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2020 -- Daniel Amthauer
  * 
- * Based on BMesh for Unity by Ã‰lie Michel (c) 2020, original copyright info included below
+ * Based on BMesh for Unity by Élie Michel (c) 2020, original copyright info included below
  * as specified by the original license terms. Those terms also apply to this version.
  */
 
 /*
- * Copyright (c) 2020 -- Ã‰lie Michel <elie@exppad.com>
+ * Copyright (c) 2020 -- Élie Michel <elie@exppad.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,25 +26,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-#include "BMeshModule.h"
+#include "BMeshFunctionLibrary.h"
 
 #include "BMeshOperators.h"
-#include "BMeshLog.h"
 
-DEFINE_LOG_CATEGORY(LogBMesh)
-
-void FBMeshModule::StartupModule()
+void UBMeshFunctionLibrary::Subdivide(UBMesh* mesh)
 {
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-
-	FBMeshOperators::RegisterDefaultTypes();
+	FBMeshOperators::Subdivide(mesh);
 }
 
-void FBMeshModule::ShutdownModule()
+void UBMeshFunctionLibrary::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength)
 {
-	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
-	// we call this function before unloading the module.
+	FBMeshOperators::SquarifyQuads(mesh, rate, uniformLength);
 }
 
-IMPLEMENT_MODULE(FBMeshModule, BMesh)
+void UBMeshFunctionLibrary::DrawDebugBMesh(UObject* WorldContextObject, FTransform LocalToWorld, UBMesh* mesh)
+{
+	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	if (World)
+	{
+		FBMeshOperators::DrawPrimitives(World, LocalToWorld, mesh);
+	}
+}

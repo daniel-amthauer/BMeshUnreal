@@ -34,6 +34,16 @@
 #include "BMeshLoop.h"
 #include "BMeshFace.h"
 
+#include "BMeshLog.h"
+
+UBMesh::UBMesh()
+{
+	VertexClass = UBMeshVertex::StaticClass();
+	EdgeClass = UBMeshEdge::StaticClass();
+	LoopClass = UBMeshLoop::StaticClass();
+	FaceClass = UBMeshFace::StaticClass();
+}
+
 UBMeshVertex* UBMesh::AddVertex(UBMeshVertex* vert)
 {
 	Vertices.Add(vert);
@@ -93,6 +103,26 @@ UBMeshEdge* UBMesh::AddEdge(UBMeshVertex* vert1, UBMeshVertex* vert2)
 	return edge;
 }
 
+UBMeshEdge* UBMesh::K2_AddEdge(UBMeshVertex* vert1, UBMeshVertex* vert2)
+{
+	if (vert1 == vert2)
+	{
+		UE_LOG(LogBMesh, Error, TEXT("Can't make an edge with same vertex on both ends"));
+		return nullptr;
+	}
+	if (vert1 == nullptr || vert2 == nullptr)
+	{
+		UE_LOG(LogBMesh, Error, TEXT("Can't make edge with invalid vertex"));
+		return nullptr;
+	}
+	if (!Vertices.Contains(vert1) || !Vertices.Contains(vert2))
+	{
+		UE_LOG(LogBMesh, Error, TEXT("One or both of the vertices are not owned by this mesh"));
+		return nullptr;
+	}
+	return AddEdge(vert1, vert2);
+}
+
 UBMeshFace* UBMesh::AddFace(TArrayView<UBMeshVertex*> fVerts)
 {
 	if (fVerts.Num() == 0) return nullptr;
@@ -121,6 +151,54 @@ UBMeshFace* UBMesh::AddFace(TArrayView<UBMeshVertex*> fVerts)
 	return f;
 }
 
+UBMeshFace* UBMesh::K2_AddFaceArray(TArray<UBMeshVertex*> _Vertices)
+{
+	if (Vertices.Num() >= 2)
+	{
+		for (auto Vert : _Vertices)
+		{
+			if (!Vert)
+			{
+				UE_LOG(LogBMesh, Error, TEXT("Faces cannot be created with invalid vertices"));
+				return nullptr;
+			}
+		}
+		return AddFace(_Vertices);
+	}
+	UE_LOG(LogBMesh, Error, TEXT("Faces must have at least two vertices, received %d"), Vertices.Num());
+	return nullptr;
+}
+
+UBMeshFace* UBMesh::K2_AddFace2(UBMeshVertex* v0, UBMeshVertex* v1)
+{
+	if (v0 == nullptr || v1 == nullptr)
+	{
+		UE_LOG(LogBMesh, Error, TEXT("Faces cannot be created with invalid vertices"));
+		return nullptr;
+	}
+	return AddFace(v0, v1);
+}
+
+UBMeshFace* UBMesh::K2_AddFace3(UBMeshVertex* v0, UBMeshVertex* v1, UBMeshVertex* v2)
+{
+	if (v0 == nullptr || v1 == nullptr || v2 == nullptr)
+	{
+		UE_LOG(LogBMesh, Error, TEXT("Faces cannot be created with invalid vertices"));
+		return nullptr;
+	}
+	return AddFace(v0, v1, v2);
+}
+
+UBMeshFace* UBMesh::K2_AddFace4(UBMeshVertex* v0, UBMeshVertex* v1, UBMeshVertex* v2, UBMeshVertex* v3)
+{
+	if (v0 == nullptr || v1 == nullptr || v2 == nullptr || v3 == nullptr)
+	{
+		UE_LOG(LogBMesh, Error, TEXT("Faces cannot be created with invalid vertices"));
+		return nullptr;
+	}
+	return AddFace(v0, v1, v2, v3);
+}
+
 UBMeshEdge* UBMesh::FindEdge(UBMeshVertex* vert1, UBMeshVertex* vert2)
 {
 	check(vert1 != vert2);
@@ -139,6 +217,21 @@ UBMeshEdge* UBMesh::FindEdge(UBMeshVertex* vert1, UBMeshVertex* vert2)
 	return nullptr;
 }
 
+UBMeshEdge* UBMesh::K2_FindEdge(UBMeshVertex* vert1, UBMeshVertex* vert2)
+{
+	if (vert1 == nullptr || vert2 == nullptr)
+	{
+		UE_LOG(LogBMesh, Error, TEXT("Can't find an edge with an invalid vertex"));
+		return nullptr;
+	}
+	if (vert1 == vert2)
+	{
+		UE_LOG(LogBMesh, Error, TEXT("Can't find an edge with same vertex on both ends"));
+		return nullptr;
+	}
+	return FindEdge(vert1, vert2);
+}
+
 void UBMesh::RemoveVertex(UBMeshVertex* v)
 {
 	check(Vertices.Contains(v));
@@ -148,6 +241,17 @@ void UBMesh::RemoveVertex(UBMeshVertex* v)
 	}
 
 	Vertices.Remove(v);
+}
+
+bool UBMesh::K2_RemoveVertex(UBMeshVertex* v)
+{
+	if (Vertices.Contains(v))
+	{
+		RemoveVertex(v);
+		return true;
+	}
+	UE_LOG(LogBMesh, Error, TEXT("Can't remove vertex that isn't in the mesh"));
+	return false;
 }
 
 void UBMesh::RemoveEdge(UBMeshEdge* e)
@@ -170,6 +274,17 @@ void UBMesh::RemoveEdge(UBMeshEdge* e)
 	e->Next2->SetPrev(e->Vert2, e->Prev2);
 
 	Edges.Remove(e);
+}
+
+bool UBMesh::K2_RemoveEdge(UBMeshEdge* e)
+{
+	if (Edges.Contains(e))
+	{
+		RemoveEdge(e);
+		return true;
+	}
+	UE_LOG(LogBMesh, Error, TEXT("Can't remove edge that isn't in the mesh"));
+	return false;
 }
 
 void UBMesh::RemoveLoop(UBMeshLoop* l)
@@ -216,6 +331,17 @@ void UBMesh::RemoveFace(UBMeshFace* f)
 		l = nextL;
 	}
 	Faces.Remove(f);
+}
+
+bool UBMesh::K2_RemoveFace(UBMeshFace* f)
+{
+	if (Faces.Contains(f))
+	{
+		RemoveFace(f);
+		return true;
+	}
+	UE_LOG(LogBMesh, Error, TEXT("Can't remove face that isn't in the mesh"));
+	return false;
 }
 
 UBMesh::FMakeParams::FMakeParams()

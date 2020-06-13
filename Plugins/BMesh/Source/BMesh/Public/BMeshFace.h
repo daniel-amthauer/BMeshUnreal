@@ -42,7 +42,7 @@ class UBMeshEdge;
 * makes sens only 1. for clarity, because loops are a less intuitive
 * object and 2. to store face attributes.
 */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class BMESH_API UBMeshFace : public UObject
 {
 	GENERATED_BODY()

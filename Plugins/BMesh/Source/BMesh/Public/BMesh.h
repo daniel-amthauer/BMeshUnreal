@@ -70,31 +70,48 @@ class UBMeshEdge;
 class UBMeshLoop;
 class UBMeshFace;
 
-UCLASS()
+/*
+ * Base class for BMesh, you can make a blueprint of this to override the default element types to add your own data
+ * By default all user data will be interpolated if it's of one of the following types:
+ *	Integer,
+ *	Float,
+ *	Vector,
+ *	Vector2D,
+ *	Vector4,
+ *	Color,
+ *	LinearColor
+ *
+ * More types can be added, but only through C++
+ */
+UCLASS(BlueprintType, Blueprintable)
 class BMESH_API UBMesh : public UObject
 {
 	GENERATED_BODY()
-	// Topological entities
+
+	UBMesh();
+	
 public:
-	UPROPERTY()
+	// Topological entities
+	UPROPERTY(BlueprintReadOnly)
 	TArray<UBMeshVertex*> Vertices;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TArray<UBMeshEdge*> Edges;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TArray<UBMeshLoop*> Loops;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TArray<UBMeshFace*> Faces;
 
-	UPROPERTY()
+	// Topological entity classes, for attribute definition
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UBMeshVertex> VertexClass;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UBMeshEdge> EdgeClass;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UBMeshLoop> LoopClass;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UBMeshFace> FaceClass;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -105,6 +122,7 @@ public:
 	 */
 	UBMeshVertex* AddVertex(UBMeshVertex* vert);
 
+	UFUNCTION(BlueprintCallable, Category="BMesh")
 	UBMeshVertex* AddVertex(FVector Location);
 
 	UBMeshVertex* AddVertex(float x, float y, float z);
@@ -115,6 +133,9 @@ public:
 	 * If the vertices are not part of the mesh, the behavior is undefined.
 	 */
 	UBMeshEdge* AddEdge(UBMeshVertex* vert1, UBMeshVertex* vert2);
+
+	UFUNCTION(BlueprintCallable, Category="BMesh", meta = (DisplayName= "Add Edge"))
+	UBMeshEdge* K2_AddEdge(UBMeshVertex* vert1, UBMeshVertex* vert2);
 
 	UBMeshEdge* AddEdge(int v1, int v2)
 	{
@@ -165,12 +186,27 @@ public:
 		return AddFace(Verts);
 	}
 
+	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Add Face (Array)"))
+	UBMeshFace* K2_AddFaceArray(TArray<UBMeshVertex*> Vertices_);
+
+	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Add Face (2 Verts)"))
+	UBMeshFace* K2_AddFace2(UBMeshVertex* v0, UBMeshVertex* v1);
+
+	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Add Face (3 Verts)"))
+	UBMeshFace* K2_AddFace3(UBMeshVertex* v0, UBMeshVertex* v1, UBMeshVertex* v2);
+
+	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Add Face (4 Verts)"))
+	UBMeshFace* K2_AddFace4(UBMeshVertex* v0, UBMeshVertex* v1, UBMeshVertex* v2, UBMeshVertex* v3);
+
 	/**
 	 * Return an edge that links vert1 to vert2 in the mesh (an arbitrary one
 	 * if there are several such edges, which is possible with this structure).
 	 * Return null if there is no edge between vert1 and vert2 in the mesh->
 	 */
 	UBMeshEdge* FindEdge(UBMeshVertex* vert1, UBMeshVertex* vert2);
+
+	UFUNCTION(BlueprintPure, Category="BMesh", meta=(DisplayName="Find Edge"))
+	UBMeshEdge* K2_FindEdge(UBMeshVertex* vert1, UBMeshVertex* vert2);
 
 	/**
 	 * Remove the provided vertex from the mesh.
@@ -180,11 +216,25 @@ public:
 	void RemoveVertex(UBMeshVertex* v);
 
 	/**
+	 * Remove the provided vertex from the mesh.
+	 * Removing a vertex also removes all the edges/loops/faces that use it.
+	 */
+	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Remove Vertex"))
+	bool K2_RemoveVertex(UBMeshVertex* v);
+
+	/**
 	 * Remove the provided edge from the mesh.
 	 * Removing an edge also removes all associated loops/faces.
 	 * If the edge was not part of this mesh, the behavior is undefined.
 	 */
 	void RemoveEdge(UBMeshEdge* e);
+
+	/**
+	 * Remove the provided edge from the mesh.
+	 * Removing an edge also removes all associated loops/faces.
+	 */
+	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Remove Edge"))
+	bool K2_RemoveEdge(UBMeshEdge* e);
 
 	/**
 	 * Removing a loop also removes associated face.
@@ -198,6 +248,12 @@ public:
 	 * (actually almost ensured to be a true mess, but do as it pleases you :D)
 	 */
 	void RemoveFace(UBMeshFace* f);
+
+	/**
+	 * Remove the provided face from the mesh.
+	 */
+	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Remove Face"))
+	bool K2_RemoveFace(UBMeshFace* e);
 
 	struct BMESH_API FMakeParams
 	{

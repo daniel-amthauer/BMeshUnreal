@@ -52,31 +52,31 @@ class UBMeshFace;
  * namely the radial list, that enables iterating over all the face using
  * the same edge.
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class BMESH_API UBMeshLoop : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Internals")
 	UBMeshVertex* Vert;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Internals")
 	UBMeshEdge* Edge;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Internals")
 	UBMeshFace* Face; // there is exactly one face using a loop
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Internals")
 	UBMeshLoop* RadialPrev; // around edge
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Internals")
 	UBMeshLoop* RadialNext;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Internals")
 	UBMeshLoop* Prev; // around face
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Internals")
 	UBMeshLoop* Next;
 
 	static UBMeshLoop* MakeLoop(TSubclassOf<UBMeshLoop> LoopClass, UBMeshVertex* Vertex, UBMeshEdge* Edge, UBMeshFace* Face);

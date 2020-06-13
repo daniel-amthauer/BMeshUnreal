@@ -45,27 +45,29 @@ class UBMeshFace;
 * The vertex position does not affect topological algorithm but is used by
 * commodity functions that helps finding the center of an edge or a face.
 */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class BMESH_API UBMeshVertex : public UObject
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	int Id;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	FVector Location;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	UBMeshEdge* Edge;
 
 	/**
      * List all edges reaching this vertex.
      */
+	UFUNCTION(BlueprintPure, Category = "BMesh|Vertex")
 	TArray<UBMeshEdge*> NeighborEdges();
 
 	/**
      * Return all faces that use this vertex as a corner.
      */
+	UFUNCTION(BlueprintPure, Category = "BMesh|Vertex")
 	TArray<UBMeshFace*> NeighborFaces();
 };

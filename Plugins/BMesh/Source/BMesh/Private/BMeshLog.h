@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2020 -- Daniel Amthauer
  * 
- * Based on BMesh for Unity by Ã‰lie Michel (c) 2020, original copyright info included below
+ * Based on BMesh for Unity by Élie Michel (c) 2020, original copyright info included below
  * as specified by the original license terms. Those terms also apply to this version.
  */
 
 /*
- * Copyright (c) 2020 -- Ã‰lie Michel <elie@exppad.com>
+ * Copyright (c) 2020 -- Élie Michel <elie@exppad.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,24 +27,8 @@
  * SOFTWARE.
  */
 
-#include "BMeshModule.h"
+#pragma once
 
-#include "BMeshOperators.h"
-#include "BMeshLog.h"
+#include "Logging/LogMacros.h"
 
-DEFINE_LOG_CATEGORY(LogBMesh)
-
-void FBMeshModule::StartupModule()
-{
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-
-	FBMeshOperators::RegisterDefaultTypes();
-}
-
-void FBMeshModule::ShutdownModule()
-{
-	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
-	// we call this function before unloading the module.
-}
-
-IMPLEMENT_MODULE(FBMeshModule, BMesh)
+DECLARE_LOG_CATEGORY_EXTERN(LogBMesh, Log, All)
