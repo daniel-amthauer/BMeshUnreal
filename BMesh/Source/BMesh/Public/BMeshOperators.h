@@ -31,6 +31,7 @@
 
 #include "UObject/Field.h"
 
+class UBMeshEdge;
 class UBMesh;
 class UBMeshVertex;
 
@@ -149,6 +150,18 @@ public:
 	 * Overriding attributes: edge's id
 	 */
 	static void Subdivide(UBMesh* mesh);
+
+	/**
+	 * Subdivide triangular faces
+	 * Only works on meshes that only have have triangular faces
+	 * @retval whether the mesh was subdivided correctly or not
+	 */
+	static bool Subdivide3(UBMesh* Mesh);
+
+	/**
+	 * Merge two faces separated by an edge
+	 */
+	static bool MergeFaces(UBMesh* Mesh, UBMeshEdge* Edge);
 
 	///////////////////////////////////////////////////////////////////////////
 	// [SquarifyQuads}

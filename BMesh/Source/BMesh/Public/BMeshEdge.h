@@ -62,47 +62,54 @@ class BMESH_API UBMeshEdge : public UObject
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY()
-	int Id; // [attribute]
+	// [attribute]
+	UPROPERTY(BlueprintReadWrite, Category="Bmesh Edge")
+	int Id;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category="Bmesh Edge")
 	UBMeshVertex* Vert1;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category="Bmesh Edge")
 	UBMeshVertex* Vert2;
 
-	UPROPERTY()
-	UBMeshEdge* Next1; // next edge around vert1. If you don't know whether your vertex is vert1 or vert2, use Next(v)
+	// next edge around vert1. If you don't know whether your vertex is vert1 or vert2, use Next(v)
+	UPROPERTY(BlueprintReadOnly, Category="Bmesh Edge")
+	UBMeshEdge* Next1;
 
-	UPROPERTY()
-	UBMeshEdge* Next2; // next edge around vert1
+	// next edge around vert1
+	UPROPERTY(BlueprintReadOnly, Category="Bmesh Edge")
+	UBMeshEdge* Next2;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category="Bmesh Edge")
 	UBMeshEdge* Prev1;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category="Bmesh Edge")
 	UBMeshEdge* Prev2;
 
-	UPROPERTY()
-	UBMeshLoop* Loop; // first node of the list of faces that use this edge. Navigate list using radial_next
+	// first node of the list of faces that use this edge. Navigate list using radial_next
+	UPROPERTY(BlueprintReadOnly, Category="Bmesh Edge")
+	UBMeshLoop* Loop;
 
 	static UBMeshEdge* MakeEdge(TSubclassOf<UBMeshEdge> EdgeClass, UBMeshVertex* Vertex1, UBMeshVertex* Vertex2);
 
 	/**
      * Tells whether a vertex is one of the extremities of this edge.
      */
+	UFUNCTION(BlueprintPure)
 	bool ContainsVertex(UBMeshVertex* v) const;
 
 	/**
 	 * If one gives a vertex of the edge to this function, it returns the
 	 * other vertex of the edge. Otherwise, the behavior is undefined.
 	 */
+	UFUNCTION(BlueprintPure)
 	UBMeshVertex* OtherVertex(UBMeshVertex* v) const;
 
 	/**
 	 * If one gives a vertex of the edge to this function, it returns the
 	 * next edge in the linked list of edges that use this vertex.
 	 */
+	UFUNCTION(BlueprintPure)
 	UBMeshEdge* Next(UBMeshVertex* v) const;
 
 	/**
@@ -113,6 +120,7 @@ public:
 	/**
 	 * Similar to Next() but to go backward in the double-linked list
 	 */
+	UFUNCTION(BlueprintPure)
 	UBMeshEdge* Prev(UBMeshVertex* v) const;
 
 	/**
@@ -123,10 +131,12 @@ public:
 	/**
 	 * Return all faces that use this edge as a side.
 	 */
+	UFUNCTION(BlueprintPure)
 	TArray<UBMeshFace*> NeighborFaces() const;
 
 	/**
 	 * Compute the barycenter of the edge's vertices
 	 */
+	UFUNCTION(BlueprintPure)
 	FVector Center() const;
 };

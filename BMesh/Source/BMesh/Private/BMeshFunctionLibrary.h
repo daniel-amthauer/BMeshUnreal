@@ -34,6 +34,7 @@
 
 #include "BMeshFunctionLibrary.generated.h"
 
+class UBMeshEdge;
 class UBMesh;
 class UBMeshVertex;
 
@@ -50,6 +51,20 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "BMesh|Operators")
 	static void Subdivide(UBMesh* mesh);
+
+	/**
+	 * Subdivide triangular faces
+	 * Only works on meshes that only have have triangular faces
+	 * @retval whether the mesh was subdivided correctly or not
+	 */
+	UFUNCTION(BlueprintCallable, Category = "BMesh|Operators")
+	static bool Subdivide3(UBMesh* mesh);
+
+	/**
+	 * Merge two faces separated by an edge
+	 */
+	UFUNCTION(BlueprintCallable, Category = "BMesh|Operators")
+	static bool MergeFaces(UBMesh* mesh, UBMeshEdge* Edge);
 
 	/**
 	 * Try to make quads as square as possible (may be called iteratively).

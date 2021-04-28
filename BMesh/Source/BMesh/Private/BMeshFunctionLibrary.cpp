@@ -32,16 +32,36 @@
 
 void UBMeshFunctionLibrary::Subdivide(UBMesh* mesh)
 {
+	if (!mesh)
+		return;
 	FBMeshOperators::Subdivide(mesh);
+}
+
+bool UBMeshFunctionLibrary::Subdivide3(UBMesh* mesh)
+{
+	if (!mesh)
+		return false;
+	return FBMeshOperators::Subdivide3(mesh);
+}
+
+bool UBMeshFunctionLibrary::MergeFaces(UBMesh* mesh, UBMeshEdge* Edge)
+{
+	if (!mesh || !Edge)
+		return false;
+	return FBMeshOperators::MergeFaces(mesh, Edge);
 }
 
 void UBMeshFunctionLibrary::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength)
 {
+	if (!mesh)
+		return;
 	FBMeshOperators::SquarifyQuads(mesh, rate, uniformLength);
 }
 
 void UBMeshFunctionLibrary::DrawDebugBMesh(UObject* WorldContextObject, FTransform LocalToWorld, UBMesh* mesh)
 {
+	if (!mesh)
+		return;
 	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
 	if (World)
 	{

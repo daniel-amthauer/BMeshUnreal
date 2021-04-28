@@ -131,6 +131,99 @@ void FBMeshOperators::Subdivide(UBMesh* mesh)
 	}
 }
 
+bool FBMeshOperators::Subdivide3(UBMesh* mesh)
+{
+	check(mesh);
+	for (auto Face : mesh->Faces)
+	{
+		if (Face->VertCount != 3)
+			return false;
+	}
+
+	int i = 0;
+	TArray<UBMeshVertex*> edgeCenters;
+	edgeCenters.SetNum(mesh->Edges.Num());
+	TArray<UBMeshEdge*> originalEdges;
+	originalEdges.SetNum(mesh->Edges.Num());
+	for (UBMeshEdge* e : mesh->Edges)
+	{
+		edgeCenters[i] = mesh->AddVertex(e->Center());
+		AttributeLerp(mesh, edgeCenters[i], e->Vert1, e->Vert2, 0.5f);
+		originalEdges[i] = e;
+		e->Id = i++;
+	}
+
+	TArray<UBMeshFace*> originalFaces = mesh->Faces; // copy because mesh.faces changes during iterations
+	for (UBMeshFace* f : originalFaces)
+	{
+		//Center tri
+		{
+			UBMeshVertex* tri[] = {
+				edgeCenters[f->FirstLoop->Edge->Id],
+				edgeCenters[f->FirstLoop->Next->Edge->Id],
+				edgeCenters[f->FirstLoop->Prev->Edge->Id]
+			};
+			mesh->AddFace(tri);
+		}
+		// Create one tri per loop in the original face
+		UBMeshLoop* it = f->FirstLoop;
+		do
+		{
+			UBMeshVertex* tri[] = {
+				it->Vert,
+				edgeCenters[it->Edge->Id],
+				edgeCenters[it->Prev->Edge->Id]
+			};
+			mesh->AddFace(tri);
+			it = it->Next;
+		}
+		while (it != f->FirstLoop);
+
+		// then get rid of the original face
+		mesh->RemoveFace(f);
+	}
+
+	// Remove old edges
+	for (UBMeshEdge* e : originalEdges)
+	{
+		mesh->RemoveEdge(e);
+	}
+	
+	return true;
+}
+
+bool FBMeshOperators::MergeFaces(UBMesh* Mesh, UBMeshEdge* Edge)
+{
+	auto Faces = Edge->NeighborFaces();
+	if (Faces.Num() != 2)
+	{
+		return false;
+	}
+
+	TArray<UBMeshVertex*> Verts;
+	{
+		auto* First = Edge->Loop->Next;
+		auto It = First;
+		do
+		{
+			Verts.Add(It->Vert);
+			It = It->Next;
+		} while (It != First);
+	}
+	{
+		auto* First = Edge->Loop->RadialNext;
+		auto It = First->Next->Next;
+		do
+		{
+			Verts.Add(It->Vert);
+			It = It->Next;
+		} while (It != First);
+	}
+	Mesh->AddFace(Verts);
+	Mesh->RemoveEdge(Edge);
+	return true;
+}
+
 FMatrix FBMeshOperators::ComputeLocalAxis(FVector r0, FVector r1, FVector r2, FVector r3)
 {
 	FVector Z = (
