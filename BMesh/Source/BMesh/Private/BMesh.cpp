@@ -263,8 +263,8 @@ void UBMesh::RemoveEdge(UBMeshEdge* e)
 	}
 
 	// Remove reference in vertices
-	if (e == e->Vert1->Edge) e->Vert1->Edge = e->Next1 != e ? e->Next1 : nullptr;
-	if (e == e->Vert2->Edge) e->Vert2->Edge = e->Next2 != e ? e->Next2 : nullptr;
+	if (e == e->Vert1->Edge) e->Vert1->Edge = (e->Next1 != e ? e->Next1 : nullptr);
+	if (e == e->Vert2->Edge) e->Vert2->Edge = (e->Next2 != e ? e->Next2 : nullptr);
 
 	// Remove from linked lists
 	e->Prev1->SetNext(e->Vert1, e->Next1);

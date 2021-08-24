@@ -71,13 +71,13 @@ public:
 	UBMeshLoop* RadialPrev; // around edge
 
 	UPROPERTY(BlueprintReadOnly, Category = "Internals")
-	UBMeshLoop* RadialNext;
+	UBMeshLoop* RadialNext; // around edge
 
 	UPROPERTY(BlueprintReadOnly, Category = "Internals")
 	UBMeshLoop* Prev; // around face
 
 	UPROPERTY(BlueprintReadOnly, Category = "Internals")
-	UBMeshLoop* Next;
+	UBMeshLoop* Next; // around face
 
 	static UBMeshLoop* MakeLoop(TSubclassOf<UBMeshLoop> LoopClass, UBMeshVertex* Vertex, UBMeshEdge* Edge, UBMeshFace* Face);
 
