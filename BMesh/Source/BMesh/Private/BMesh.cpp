@@ -123,7 +123,7 @@ UBMeshEdge* UBMesh::K2_AddEdge(UBMeshVertex* vert1, UBMeshVertex* vert2)
 	return AddEdge(vert1, vert2);
 }
 
-UBMeshFace* UBMesh::AddFace(TArrayView<UBMeshVertex*> fVerts)
+UBMeshFace* UBMesh::AddFace(TArrayView<UBMeshVertex* const> fVerts)
 {
 	if (fVerts.Num() == 0) return nullptr;
 	for (auto v : fVerts) check(v != nullptr);

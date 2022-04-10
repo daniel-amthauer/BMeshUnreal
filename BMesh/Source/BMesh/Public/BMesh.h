@@ -148,7 +148,7 @@ public:
 	 * undefined.
 	 * NB: There is no AddLoop, because a loop is an element of a face
 	 */
-	UBMeshFace* AddFace(TArrayView<UBMeshVertex*> fVerts);
+	UBMeshFace* AddFace(TArrayView<UBMeshVertex* const> fVerts);
 
 	inline UBMeshFace* AddFace(UBMeshVertex* v0, UBMeshVertex* v1)
 	{
