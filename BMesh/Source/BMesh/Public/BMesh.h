@@ -102,16 +102,16 @@ public:
 	TArray<UBMeshFace*> Faces;
 
 	// Topological entity classes, for attribute definition
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeOnSpawn))
 	TSubclassOf<UBMeshVertex> VertexClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeOnSpawn))
 	TSubclassOf<UBMeshEdge> EdgeClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeOnSpawn))
 	TSubclassOf<UBMeshLoop> LoopClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeOnSpawn))
 	TSubclassOf<UBMeshFace> FaceClass;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -152,38 +152,32 @@ public:
 
 	inline UBMeshFace* AddFace(UBMeshVertex* v0, UBMeshVertex* v1)
 	{
-		UBMeshVertex* Verts[] = {v0, v1};
-		return AddFace(Verts);
+		return AddFace({v0, v1});
 	}
 
 	inline UBMeshFace* AddFace(UBMeshVertex* v0, UBMeshVertex* v1, UBMeshVertex* v2)
 	{
-		UBMeshVertex* Verts[] = {v0, v1, v2};
-		return AddFace(Verts);
+		return AddFace({v0, v1, v2});
 	}
 
 	inline UBMeshFace* AddFace(UBMeshVertex* v0, UBMeshVertex* v1, UBMeshVertex* v2, UBMeshVertex* v3)
 	{
-		UBMeshVertex* Verts[] = {v0, v1, v2, v3};
-		return AddFace(Verts);
+		return AddFace({v0, v1, v2, v3});
 	}
 
 	inline UBMeshFace* AddFace(int i0, int i1)
 	{
-		UBMeshVertex* Verts[] = {Vertices[i0], Vertices[i1]};
-		return AddFace(Verts);
+		return AddFace({Vertices[i0], Vertices[i1]});
 	}
 
 	inline UBMeshFace* AddFace(int i0, int i1, int i2)
 	{
-		UBMeshVertex* Verts[] = {Vertices[i0], Vertices[i1], Vertices[i2]};
-		return AddFace(Verts);
+		return AddFace({Vertices[i0], Vertices[i1], Vertices[i2]});
 	}
 
 	inline UBMeshFace* AddFace(int i0, int i1, int i2, int i3)
 	{
-		UBMeshVertex* Verts[] = {Vertices[i0], Vertices[i1], Vertices[i2], Vertices[i3]};
-		return AddFace(Verts);
+		return AddFace({Vertices[i0], Vertices[i1], Vertices[i2], Vertices[i3]});
 	}
 
 	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Add Face (Array)"))

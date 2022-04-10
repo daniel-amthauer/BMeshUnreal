@@ -58,6 +58,7 @@ void FBMeshOperators::RegisterDefaultTypes()
 {
 	RegisterNumericPropertyType<FIntProperty>();
 	RegisterNumericPropertyType<FFloatProperty>();
+	RegisterNumericPropertyType<FDoubleProperty>();
 
 	PropertyTypeLerps.Add(FStructProperty::StaticClass(), new FStructPropertyLerp());
 	RegisterStructType<FVector>();
@@ -286,11 +287,13 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 
 	TArray<FVector> pointUpdates;
 	pointUpdates.SetNum(mesh->Vertices.Num());
-	TArray<float> weights;
+	TArray<double> weights;
 	weights.SetNum(mesh->Vertices.Num());
 
 	FStructProperty* RestposProperty = CastField<FStructProperty>(mesh->VertexClass->FindPropertyByName(FName("RestPos")));
-	FFloatProperty* WeightProperty = CastField<FFloatProperty>(mesh->VertexClass->FindPropertyByName(FName("Weight")));
+	FProperty* WeightProperty = mesh->VertexClass->FindPropertyByName(FName("Weight"));
+	auto* WeightPropFloat = CastField<FFloatProperty>(WeightProperty);
+	auto WeightPropDouble = CastField<FDoubleProperty>(WeightProperty);
 
 	int i = 0;
 
@@ -298,12 +301,25 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 	{
 		if (WeightProperty)
 		{
-			for (UBMeshVertex* v :  mesh->Vertices)
+			if (WeightPropFloat)
 			{
-				weights[i] = *WeightProperty->ContainerPtrToValuePtr<float>(v);
-				auto restpos = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
-				pointUpdates[i] = (restpos - v->Location) * weights[i];
-				v->Id = i++;
+				for (UBMeshVertex* v :  mesh->Vertices)
+				{
+					weights[i] = *WeightProperty->ContainerPtrToValuePtr<float>(v);
+					auto restpos = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
+					pointUpdates[i] = (restpos - v->Location) * weights[i];
+					v->Id = i++;
+				}
+			}
+			else if (WeightPropDouble)
+			{
+				for (UBMeshVertex* v :  mesh->Vertices)
+				{
+					weights[i] = *WeightProperty->ContainerPtrToValuePtr<double>(v);
+					auto restpos = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
+					pointUpdates[i] = (restpos - v->Location) * weights[i];
+					v->Id = i++;
+				}
 			}
 		}
 		else
@@ -410,6 +426,16 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 			v->Location += pointUpdates[i] * (rate / weights[i]);
 		}
 		++i;
+	}
+	if (RestposProperty && WeightPropDouble)
+	{
+		for (UBMeshVertex* v : mesh->Vertices)
+		{
+			if (*WeightPropDouble->ContainerPtrToValuePtr<double>(v) == 1.0)
+			{
+				v->Location = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
+			}
+		}
 	}
 }
 
