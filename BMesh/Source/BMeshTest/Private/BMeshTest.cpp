@@ -162,9 +162,9 @@ void UBMeshTestComponent::Test1()
 {
 	TestBMesh = UBMesh::Make(this);
 
-	UBMeshVertex* v0 = TestBMesh->AddVertex(FVector(-0.5f, 0.0f, -FMath::Sqrt(3) / 6));
-    UBMeshVertex* v1 = TestBMesh->AddVertex(FVector(0.5f, 0.0f, -FMath::Sqrt(3) / 6));
-    UBMeshVertex* v2 = TestBMesh->AddVertex(FVector(0, 0.0f, FMath::Sqrt(3) / 3));
+	UBMeshVertex* v0 = TestBMesh->AddVertex(FVector(-0.5f, 0.0f, -FMath::Sqrt(3.0) / 6));
+    UBMeshVertex* v1 = TestBMesh->AddVertex(FVector(0.5f, 0.0f, -FMath::Sqrt(3.0) / 6));
+    UBMeshVertex* v2 = TestBMesh->AddVertex(FVector(0, 0.0f, FMath::Sqrt(3.0) / 3));
     UBMeshFace* f = TestBMesh->AddFace(v0, v1, v2);
 
     ensureMsgf(TestBMesh->Vertices.Num() == 3, TEXT("vert count"));

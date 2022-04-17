@@ -180,10 +180,22 @@ public:
 		return AddFace({Vertices[i0], Vertices[i1], Vertices[i2], Vertices[i3]});
 	}
 
+	UBMeshFace* K2_AddFaceArrayIdxCommon(TArrayView<int const> Indices);
+
+	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Add Face (Array of Indices)"))
+	UBMeshFace* K2_AddFaceArrayIdx(TArray<int> Indices);
+
+	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Add Face (3 Vert Indices)"))
+	UBMeshFace* K2_AddFace3Idx(int i0, int i1, int i2);
+
+	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Add Face (4 Vert Indices)"))
+	UBMeshFace* K2_AddFace4Idx(int i0, int i1, int i2, int i3);
+
 	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Add Face (Array)"))
 	UBMeshFace* K2_AddFaceArray(TArray<UBMeshVertex*> Vertices_);
 
-	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Add Face (2 Verts)"))
+	//Deprecated, as this is a fairly obscure functionality and it can still be achieved with the array version
+	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Add Face (2 Verts)", DeprecatedFunction))
 	UBMeshFace* K2_AddFace2(UBMeshVertex* v0, UBMeshVertex* v1);
 
 	UFUNCTION(BlueprintCallable, Category="BMesh", meta=(DisplayName="Add Face (3 Verts)"))

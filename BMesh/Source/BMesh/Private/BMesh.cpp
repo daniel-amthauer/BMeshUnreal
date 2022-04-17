@@ -46,6 +46,7 @@ UBMesh::UBMesh()
 
 UBMeshVertex* UBMesh::AddVertex(UBMeshVertex* vert)
 {
+	check(vert->GetOuter() == this);
 	Vertices.Add(vert);
 	return vert;
 }
@@ -65,6 +66,8 @@ UBMeshVertex* UBMesh::AddVertex(float x, float y, float z)
 UBMeshEdge* UBMesh::AddEdge(UBMeshVertex* vert1, UBMeshVertex* vert2)
 {
 	check(vert1 != vert2);
+	check(vert1->GetOuter() == this);
+	check(vert2->GetOuter() == this);
 
 	UBMeshEdge* edge = FindEdge(vert1, vert2);
 	if (edge != nullptr) return edge;
@@ -125,8 +128,10 @@ UBMeshEdge* UBMesh::K2_AddEdge(UBMeshVertex* vert1, UBMeshVertex* vert2)
 
 UBMeshFace* UBMesh::AddFace(TArrayView<UBMeshVertex* const> fVerts)
 {
-	if (fVerts.Num() == 0) return nullptr;
+	check (fVerts.Num() >= 2);
+#if DO_CHECK
 	for (auto v : fVerts) check(v != nullptr);
+#endif
 
 	TArray<UBMeshEdge*, TInlineAllocator<6>> fEdges;
 	fEdges.SetNum(fVerts.Num());
@@ -149,6 +154,41 @@ UBMeshFace* UBMesh::AddFace(TArrayView<UBMeshVertex* const> fVerts)
 
 	f->VertCount = fVerts.Num();
 	return f;
+}
+
+UBMeshFace* UBMesh::K2_AddFaceArrayIdxCommon(TArrayView<int const> Indices)
+{
+	if (Indices.Num() < 2)
+	{
+		UE_LOG(LogBMesh, Error, TEXT("Can't create a face with less that 2 vertices, received %d"), Indices.Num());
+		return nullptr;
+	}
+	TArray<UBMeshVertex*, TInlineAllocator<4>> Verts;
+	for (const int Index : Indices)
+	{
+		if (!Vertices.IsValidIndex(Index))
+		{
+			UE_LOG(LogBMesh, Error, TEXT("Received invalid index %d"), Index);
+			return nullptr;
+		}
+		Verts.Add(Vertices[Index]);
+	}
+	return AddFace(Verts);
+}
+
+UBMeshFace* UBMesh::K2_AddFaceArrayIdx(TArray<int> Indices)
+{
+	return K2_AddFaceArrayIdxCommon(Indices);
+}
+
+UBMeshFace* UBMesh::K2_AddFace3Idx(int i0, int i1, int i2)
+{
+	return K2_AddFaceArrayIdxCommon({i0, i1, i2});
+}
+
+UBMeshFace* UBMesh::K2_AddFace4Idx(int i0, int i1, int i2, int i3)
+{
+	return K2_AddFaceArrayIdxCommon({i0, i1, i2, i3});
 }
 
 UBMeshFace* UBMesh::K2_AddFaceArray(TArray<UBMeshVertex*> _Vertices)

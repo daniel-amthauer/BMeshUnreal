@@ -71,7 +71,7 @@ public:
 
 	/**
 	 * Get the list of edges around the face.
-	 * It is garrantied to match the order of NeighborVertices(), so that
+	 * It is guaranteed to match the order of NeighborVertices(), so that
 	 * edge[0] = Vert[0]-->Vert[1], edge[1] = Vert[1]-->Vert[2], etc.
 	 */
 	UFUNCTION(BlueprintPure)
