@@ -8,7 +8,7 @@ Requires Unreal Engine 4.25.x or greater
 Copy the BMesh folder (from inside the Plugins folder) to your project's Plugins folder. The editor should prompt you to compile the plugin when opening your project.
 
 ## Usage
-See [`UBMeshTestComponent`](https://github.com/daniel-amthauer/BMeshUnreal/blob/master/Plugins/BMesh/Source/BMeshTest/Private/BMeshTest.cpp) in the BMeshTests module for examples of how to create meshes with it and how to visualize them in the editor. 
+See [`UBMeshTestComponent`](https://github.com/daniel-amthauer/BMeshUnreal/blob/master/BMesh/Source/BMeshTest/Private/BMeshTest.cpp) in the BMeshTests module for examples of how to create meshes with it and how to visualize them in the editor. 
 
 ## Future work 
 ~~- Conversion to RuntimeMeshComponent~~
