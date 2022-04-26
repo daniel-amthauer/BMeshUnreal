@@ -3,12 +3,12 @@ Based on BMesh for Unity (https://github.com/eliemichel/BMeshUnity)
 It provides a half-edge data structure inspired by Blender's BMesh, which makes many mesh manipulation operations simpler.
 It's useful when using mesh data for logical instead of visual purposes (e.g. irregular grids). It might also be used as a more flexible intermediate representation for certain mesh operators, but this use case is currently missing a conversion operator to regular Unreal Engine mesh structures.
 It is accessible from Blueprints and each of the mesh elements can be customized to carry more information, which will be automatically interpolated by operations such as subdivisions as long as it's of one of the following types:
+- Int
+- Float/Double
+- FVector, FVector2D, FVector4
+- FLinearColor
 
--Int
--Float/Double
--FVector, FVector2D, FVector4
--FLinearColor
-This can be extended by the user with other types, but it must be done from C++ (See ['here'](Source/BMesh/Private/BMeshModule.cpp) for an example.
+This can be extended by the user with other types, but it must be done from C++ (See ['here'](Source/BMesh/Private/BMeshModule.cpp) and ['here'](Source/BMesh/Private/BMeshOperators.cpp) for an example of how this is done with the *FBMeshOperators::RegisterDefaultTypeInterpolators* function.
 
 ## Usage
 See [`UBMeshTestComponent`](Source/BMeshTest/Private/BMeshTest.cpp) in the BMeshTests module for examples of how to create meshes with it from C++ and how to visualize them in the editor. 

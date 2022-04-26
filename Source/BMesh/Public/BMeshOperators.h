@@ -193,6 +193,7 @@ public:
 
 	/**
 	 * Subdivides all faces in array view into one triangle for each edge, starting from the original face's center
+	 * Center vertex does not interpolate values from original vertices
 	 */
 	static void SubdivideTriangleFan(TArrayView<class UBMeshFace* const> Faces);
 

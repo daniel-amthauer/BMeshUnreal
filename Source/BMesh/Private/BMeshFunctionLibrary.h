@@ -54,8 +54,9 @@ public:
 	static void Subdivide(UBMesh* mesh);
 
 	/**
-	 * Subdivide triangular faces
-	 * Only works on meshes that only have have triangular faces
+	 * Subdivide triangular faces into 4 equal triangles
+	 * Only works on meshes that only have triangular faces
+	 * Interpolates attributes for vertices
 	 * @retval whether the mesh was subdivided correctly or not
 	 */
 	UFUNCTION(BlueprintCallable, Category = "BMesh|Operators")

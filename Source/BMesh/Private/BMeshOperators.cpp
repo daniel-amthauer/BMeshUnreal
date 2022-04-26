@@ -427,6 +427,7 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 		}
 		++i;
 	}
+	//ensure verts with 1.0 weight are fully constrained to their rest pos
 	if (RestposProperty && WeightPropDouble)
 	{
 		for (UBMeshVertex* v : mesh->Vertices)
