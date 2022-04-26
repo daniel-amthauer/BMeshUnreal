@@ -54,17 +54,17 @@ void FBMeshOperators::FStructPropertyLerp::Lerp(FProperty* Property, UBMeshVerte
 	}
 }
 
-void FBMeshOperators::RegisterDefaultTypes()
+void FBMeshOperators::RegisterDefaultTypeInterpolators()
 {
-	RegisterNumericPropertyType<FIntProperty>();
-	RegisterNumericPropertyType<FFloatProperty>();
-	RegisterNumericPropertyType<FDoubleProperty>();
+	RegisterNumericPropertyTypeInterpolator<FIntProperty>();
+	RegisterNumericPropertyTypeInterpolator<FFloatProperty>();
+	RegisterNumericPropertyTypeInterpolator<FDoubleProperty>();
 
 	PropertyTypeLerps.Add(FStructProperty::StaticClass(), new FStructPropertyLerp());
-	RegisterStructType<FVector>();
-	RegisterStructType<FVector2D>();
-	RegisterStructType<FVector4>();
-	RegisterStructType<FLinearColor>();
+	RegisterStructTypeInterpolator<FVector>();
+	RegisterStructTypeInterpolator<FVector2D>();
+	RegisterStructTypeInterpolator<FVector4>();
+	RegisterStructTypeInterpolator<FLinearColor>();
 }
 
 void FBMeshOperators::AttributeLerp(UBMesh* mesh, UBMeshVertex* destination, UBMeshVertex* v1, UBMeshVertex* v2,
@@ -436,6 +436,24 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 				v->Location = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
 			}
 		}
+	}
+}
+
+void FBMeshOperators::SubdivideTriangleFan(TArrayView<UBMeshFace* const> Faces)
+{
+	for (auto* OriginalFace : Faces)
+	{
+		check(OriginalFace != nullptr);
+		auto* Mesh = CastChecked<UBMesh>(OriginalFace->GetOuter());
+		auto* Center = Mesh->AddVertex(OriginalFace->Center());
+		auto Loop = OriginalFace->FirstLoop;
+		do
+		{
+			Mesh->AddFace(Center, Loop->Vert, Loop->Next->Vert);
+			Loop = Loop->Next;
+		}
+		while (Loop != OriginalFace->FirstLoop);
+		Mesh->RemoveFace(OriginalFace);
 	}
 }
 

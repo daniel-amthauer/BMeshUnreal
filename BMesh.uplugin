@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "BMesh for Unreal",
-	"Description": "Makes runtime procedural mesh generation more flexible",
+	"Description": "Provides a customizable half-edge data structure that makes many mesh manipulation algorithms simpler.",
 	"Category": "Utilities",
 	"CreatedBy": "Daniel Amthauer",
 	"CreatedByURL": "https://github.com/daniel-amthauer/BMeshUnreal",
@@ -25,6 +25,5 @@
 			"LoadingPhase": "PreLoadingScreen"
 		}
 	],
-	"Plugins": [
-	]
+	"IsExperimentalVersion": false
 }

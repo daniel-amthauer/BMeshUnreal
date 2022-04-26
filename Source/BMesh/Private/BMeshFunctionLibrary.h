@@ -34,6 +34,7 @@
 
 #include "BMeshFunctionLibrary.generated.h"
 
+class UBMeshFace;
 class UBMeshEdge;
 class UBMesh;
 class UBMeshVertex;
@@ -82,6 +83,24 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "BMesh|Operators")
 	static void SquarifyQuads(UBMesh* mesh, float rate = 1.0f, bool uniformLength = false);
+
+	/**
+	 * Subdivides all faces in array into one triangle for each edge, starting from the original face's center
+	 */
+	UFUNCTION(BlueprintCallable, Category = "BMesh|Operators")
+	static void SubdivideTriangleFan(TArray<UBMeshFace*> Faces);
+
+	/**
+	 * Subdivides all faces into one triangle for each edge, starting from the original face's center
+	 */
+	UFUNCTION(BlueprintCallable, Category = "BMesh|Operators", meta = (DisplayName="Subdivide Triangle Fan"))
+	static void SubdivideTriangleFanAllFaces(UBMesh* mesh);
+
+	/**
+	 * Subdivides face into one triangle for each edge, starting from the original face's center
+	 */
+	UFUNCTION(BlueprintCallable, Category = "BMesh|Operators", meta = (DisplayName="Subdivide Triangle Fan"))
+	static void SubdivideTriangleFanSingle(UBMeshFace* Face);
 	
 	UFUNCTION(BlueprintCallable, Category = "BMesh|Operators", meta=(WorldContext=WorldContextObject))
 	static void DrawDebugBMesh(UObject* WorldContextObject, FTransform LocalToWorld, UBMesh* mesh);

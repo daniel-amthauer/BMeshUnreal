@@ -121,7 +121,7 @@ private:
 public:
 
 	template <typename NumericPropertyType>
-	static void RegisterNumericPropertyType()
+	static void RegisterNumericPropertyTypeInterpolator()
 	{
 		FFieldClass* FieldClass = NumericPropertyType::StaticClass();
 		check(!PropertyTypeLerps.Contains(FieldClass));
@@ -129,14 +129,14 @@ public:
 	}
 
 	template <typename StructType>
-	static void RegisterStructType()
+	static void RegisterStructTypeInterpolator()
 	{
 		UScriptStruct* ScriptStruct = TBaseStructure<StructType>::Get();
 		check(!StructTypeLerps.Contains(ScriptStruct));
 		StructTypeLerps.Add(ScriptStruct, new TSpecificStructPropertyLerp<StructType>());
 	}
 
-	static void RegisterDefaultTypes();
+	static void RegisterDefaultTypeInterpolators();
 	/**
 	 * Set all attributes in destination vertex to attr[v1] * (1 - t) + attr[v2] * t
 	 * Overriding attributes: all in vertex 'destination', none in others.
@@ -189,6 +189,12 @@ public:
 	 * @param uniformLength whether the size of the quads must be uniformized.
 	 */
 	static void SquarifyQuads(UBMesh* mesh, float rate = 1.0f, bool uniformLength = false);
+
+
+	/**
+	 * Subdivides all faces in array view into one triangle for each edge, starting from the original face's center
+	 */
+	static void SubdivideTriangleFan(TArrayView<class UBMeshFace* const> Faces);
 
 	//#endregion
 

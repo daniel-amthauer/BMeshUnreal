@@ -171,6 +171,11 @@ UBMeshFace* UBMesh::K2_AddFaceArrayIdxCommon(TArrayView<int const> Indices)
 			UE_LOG(LogBMesh, Error, TEXT("Received invalid index %d"), Index);
 			return nullptr;
 		}
+		if (Verts.Contains(Vertices[Index]))
+		{
+			UE_LOG(LogBMesh, Error, TEXT("Duplicate vertex index %d"), Index);
+			return nullptr;
+		}
 		Verts.Add(Vertices[Index]);
 	}
 	return AddFace(Verts);

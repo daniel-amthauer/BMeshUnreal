@@ -28,7 +28,9 @@
  */
 #include "BMeshFunctionLibrary.h"
 
+#include "BMesh.h"
 #include "BMeshOperators.h"
+#include "BMeshLog.h"
 
 void UBMeshFunctionLibrary::Subdivide(UBMesh* mesh)
 {
@@ -56,6 +58,38 @@ void UBMeshFunctionLibrary::SquarifyQuads(UBMesh* mesh, float rate, bool uniform
 	if (!mesh)
 		return;
 	FBMeshOperators::SquarifyQuads(mesh, rate, uniformLength);
+}
+
+void UBMeshFunctionLibrary::SubdivideTriangleFan(TArray<UBMeshFace*> Faces)
+{
+	for (const auto* Face : Faces)
+	{
+		if (Face == nullptr)
+		{
+			UE_LOG(LogBMesh, Error, TEXT("Invalid face, aborting"));
+			return;
+		}
+	}
+	FBMeshOperators::SubdivideTriangleFan(Faces);
+}
+
+void UBMeshFunctionLibrary::SubdivideTriangleFanAllFaces(UBMesh* mesh)
+{
+	if (mesh)
+	{
+		auto OriginalFaces = mesh->Faces;
+		FBMeshOperators::SubdivideTriangleFan(OriginalFaces);
+	}
+}
+
+void UBMeshFunctionLibrary::SubdivideTriangleFanSingle(UBMeshFace* Face)
+{
+	if (Face == nullptr)
+	{
+		UE_LOG(LogBMesh, Error, TEXT("Invalid face, aborting"));
+		return;
+	}
+	FBMeshOperators::SubdivideTriangleFan({Face});
 }
 
 void UBMeshFunctionLibrary::DrawDebugBMesh(UObject* WorldContextObject, FTransform LocalToWorld, UBMesh* mesh)
