@@ -18,6 +18,7 @@ Here's an example that produces a hexagonal face that's then subdivided into a t
 ![Blueprint code that creates a BMesh object with a hexagonal face which is subdivided into a triangle fan](Docs/BlueprintExample.png?raw=true)
 
 This is the result
+
 ![Result of the previous code visualized with debug lines](Docs/BlueprintResult.png?raw=true)
 
 There are several operators included to subdivide the mesh in different ways, as well as a few others.
