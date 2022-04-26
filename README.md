@@ -10,9 +10,13 @@ It is accessible from Blueprints and each of the mesh elements can be customized
 -FLinearColor
 This can be extended by the user with other types, but it must be done from C++ (See ['here'](Source/BMesh/Private/BMeshModule.cpp) for an example.
 
+## Usage
+See [`UBMeshTestComponent`](Source/BMeshTest/Private/BMeshTest.cpp) in the BMeshTests module for examples of how to create meshes with it from C++ and how to visualize them in the editor. 
+
 To use from Blueprints simply create a BMesh object, and select your preferred class for each mesh element. The default classes include only a location for vertices, and no extra attributes for any other elements, aside from an Id integer which can be used as a temporary attribute in many mesh operators.
 Here's an example that produces a hexagonal face that's then subdivided into a triangle fan
 ![Blueprint code that creates a BMesh object with a hexagonal face which is subdivided into a triangle fan](Docs/BlueprintExample.png?raw=true)
+
 This is the result
 ![Result of the previous code visualized with debug lines](Docs/BlueprintResult.png?raw=true)
 
@@ -25,9 +29,6 @@ Requires Unreal Engine 4.25.x or greater
 ## Installation
 Copy the BMesh folder to your project's Plugins folder. The editor should prompt you to compile the plugin when opening your project.
 If you're using Git as your source control, you can also add the repo (or a fork of it) directly as a submodule to your Plugins folder.
-
-## Usage
-See [`UBMeshTestComponent`](Source/BMeshTest/Private/BMeshTest.cpp) in the BMeshTests module for examples of how to create meshes with it and how to visualize them in the editor. 
 
 ## Future work 
 ~~- Conversion to RuntimeMeshComponent~~
