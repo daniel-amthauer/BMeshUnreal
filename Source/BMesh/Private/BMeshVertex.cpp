@@ -32,7 +32,7 @@
 #include "BMeshEdge.h"
 #include "BMeshFace.h"
 
-TArray<UBMeshEdge*> UBMeshVertex::NeighborEdges()
+TArray<UBMeshEdge*> UBMeshVertex::NeighborEdges() const
 {
 	TArray<UBMeshEdge*> Edges;
 	if (Edge)
@@ -48,21 +48,32 @@ TArray<UBMeshEdge*> UBMeshVertex::NeighborEdges()
 	return Edges;
 }
 
-TArray<UBMeshFace*> UBMeshVertex::NeighborFaces()
+TArray<UBMeshFace*> UBMeshVertex::NeighborFaces() const
 {
 	TArray<UBMeshFace*> Faces;
 	if (Edge)
 	{
-		UBMeshEdge* it = Edge;
+		const UBMeshEdge* It = Edge;
 		do
 		{
-			for (UBMeshFace* f : it->NeighborFaces())
+			for (auto Face : It->NeighborFacesRange())
 			{
-				Faces.AddUnique(f);
+				Faces.AddUnique(Face);
 			}
-			it = it->Next(this);
+			It = It->Next(this);
 		}
-		while (it != Edge);
+		while (It != Edge);
 	}
 	return Faces;
+}
+
+void UBMeshVertex::FNeighborVerticesRangedForAdapter::FIterator::operator++()
+{
+	bFirst = false;
+	Current = Current->Next(Owner);
+}
+
+UBMeshVertex* UBMeshVertex::FNeighborVerticesRangedForAdapter::FIterator::operator*() const
+{
+	return Current->OtherVertex(Owner);
 }

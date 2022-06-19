@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2020 -- Daniel Amthauer
  * 
- * Based on BMesh for Unity by Élie Michel (c) 2020, original copyright info included below
+ * Based on BMesh for Unity by Ã‰lie Michel (c) 2020, original copyright info included below
  * as specified by the original license terms. Those terms also apply to this version.
  */
 
 /*
- * Copyright (c) 2020 -- Élie Michel <elie@exppad.com>
+ * Copyright (c) 2020 -- Ã‰lie Michel <elie@exppad.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -272,4 +272,34 @@ public:
 	};
 
 	static UBMesh* Make(UObject* Outer = GetTransientPackage(), FMakeParams Params = FMakeParams());
+
+	//Updates each element's Id field to contain its index into its container
+	template <typename T>
+	void UpdateElementIds();
+	
+	template<typename T>
+	TArray<T*>& GetElementContainer();
+
+	template<>
+	TArray<UBMeshVertex*>& GetElementContainer() { return Vertices; }
+
+	template<>
+	TArray<UBMeshFace*>& GetElementContainer() { return Faces; }
+
+	template<>
+	TArray<UBMeshEdge*>& GetElementContainer() { return Edges; }
+	
+	template<>
+	TArray<UBMeshLoop*>& GetElementContainer() { return Loops; }
 };
+
+template <typename T>
+void UBMesh::UpdateElementIds()
+{
+	auto& Container = GetElementContainer<T>();
+	for (int i = 0; i < Container.Num(); ++i)
+	{
+		Container[i]->Id = i;
+	}
+}
+

@@ -91,3 +91,14 @@ FVector UBMeshFace::Center()
 	}
 	return p / sum;
 }
+
+void UBMeshFace::FVertexRangedForAdapter::FIterator::operator++()
+{
+	bFirst = false;
+	Current = Current->Next;
+}
+
+UBMeshVertex* UBMeshFace::FVertexRangedForAdapter::FIterator::operator*() const
+{
+	return Current->Vert;
+}

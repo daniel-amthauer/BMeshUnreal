@@ -30,6 +30,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BMeshFace.h"
 
 #include "BMeshEdge.generated.h"
 
@@ -96,37 +97,37 @@ public:
      * Tells whether a vertex is one of the extremities of this edge.
      */
 	UFUNCTION(BlueprintPure)
-	bool ContainsVertex(UBMeshVertex* v) const;
+	bool ContainsVertex(const UBMeshVertex* v) const;
 
 	/**
 	 * If one gives a vertex of the edge to this function, it returns the
 	 * other vertex of the edge. Otherwise, the behavior is undefined.
 	 */
 	UFUNCTION(BlueprintPure)
-	UBMeshVertex* OtherVertex(UBMeshVertex* v) const;
+	UBMeshVertex* OtherVertex(const UBMeshVertex* v) const;
 
 	/**
 	 * If one gives a vertex of the edge to this function, it returns the
 	 * next edge in the linked list of edges that use this vertex.
 	 */
 	UFUNCTION(BlueprintPure)
-	UBMeshEdge* Next(UBMeshVertex* v) const;
+	UBMeshEdge* Next(const UBMeshVertex* v) const;
 
 	/**
 	 * This is used when inserting a new Edge in the lists.
 	 */
-	void SetNext(UBMeshVertex* v, UBMeshEdge* other);
+	void SetNext(const UBMeshVertex* v, UBMeshEdge* other);
 
 	/**
 	 * Similar to Next() but to go backward in the double-linked list
 	 */
 	UFUNCTION(BlueprintPure)
-	UBMeshEdge* Prev(UBMeshVertex* v) const;
+	UBMeshEdge* Prev(const UBMeshVertex* v) const;
 
 	/**
 	 * Similar to SetNext()
 	 */
-	void SetPrev(UBMeshVertex* v, UBMeshEdge* other);
+	void SetPrev(const UBMeshVertex* v, UBMeshEdge* other);
 
 	/**
 	 * Return all faces that use this edge as a side.
@@ -139,4 +140,46 @@ public:
 	 */
 	UFUNCTION(BlueprintPure)
 	FVector Center() const;
+
+	//////////////////////////////////////////////
+	/// Ranged for loop support
+	//////////////////////////////////////////////
+
+	struct FNeighborFacesRangedForAdapter
+	{
+		const UBMeshEdge* Owner;
+		
+		struct BMESH_API FIterator
+		{
+			UBMeshLoop* Current;
+			bool bFirst = true;
+			void operator++();
+			bool operator!=(const FIterator& Other) const
+			{
+				return Current != Other.Current || bFirst;
+			}
+			UBMeshFace* operator*() const;
+		};
+		FIterator begin() const
+		{
+			FIterator It;
+			It.Current = Owner->Loop;
+			It.bFirst = true;
+			return It;
+		}
+		FIterator end() const
+		{
+			FIterator It;
+			It.Current = Owner->Loop;
+			It.bFirst = false;
+			return It;
+		}
+	};
+	
+	FNeighborFacesRangedForAdapter NeighborFacesRange() const
+	{
+		FNeighborFacesRangedForAdapter Adapter;
+		Adapter.Owner = this;
+		return Adapter;
+	}
 };

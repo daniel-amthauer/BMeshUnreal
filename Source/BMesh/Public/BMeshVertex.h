@@ -63,11 +63,55 @@ public:
      * List all edges reaching this vertex.
      */
 	UFUNCTION(BlueprintPure, Category = "BMesh|Vertex")
-	TArray<UBMeshEdge*> NeighborEdges();
+	TArray<UBMeshEdge*> NeighborEdges() const;
 
 	/**
      * Return all faces that use this vertex as a corner.
      */
 	UFUNCTION(BlueprintPure, Category = "BMesh|Vertex")
-	TArray<UBMeshFace*> NeighborFaces();
+	TArray<UBMeshFace*> NeighborFaces() const;
+
+	//////////////////////////////////////////////
+	/// Ranged for loop support
+	//////////////////////////////////////////////
+
+	struct FNeighborVerticesRangedForAdapter
+	{
+		const UBMeshVertex* Owner;
+		
+		struct BMESH_API FIterator
+		{
+			const UBMeshVertex* Owner;
+			UBMeshEdge* Current;
+			bool bFirst = true;
+			void operator++();
+			bool operator!=(const FIterator& Other) const
+			{
+				return Current != Other.Current || bFirst;
+			}
+			UBMeshVertex* operator*() const;
+		};
+		FIterator begin() const
+		{
+			FIterator It;
+			It.Owner = Owner;
+			It.Current = Owner->Edge;
+			It.bFirst = true;
+			return It;
+		}
+		FIterator end() const
+		{
+			FIterator It;
+			It.Current = Owner->Edge;
+			It.bFirst = false;
+			return It;
+		}
+	};
+	
+	FNeighborVerticesRangedForAdapter NeighborVerticesRange() const
+	{
+		FNeighborVerticesRangedForAdapter Adapter;
+		Adapter.Owner = this;
+		return Adapter;
+	}
 };

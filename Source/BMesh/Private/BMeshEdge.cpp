@@ -44,37 +44,37 @@ UBMeshEdge* UBMeshEdge::MakeEdge(TSubclassOf<UBMeshEdge> EdgeClass, UBMeshVertex
 	return nullptr;
 }
 
-bool UBMeshEdge::ContainsVertex(UBMeshVertex* v) const
+bool UBMeshEdge::ContainsVertex(const UBMeshVertex* v) const
 {
 	return v == Vert1 || v == Vert2;
 }
 
-UBMeshVertex* UBMeshEdge::OtherVertex(UBMeshVertex* v) const
+UBMeshVertex* UBMeshEdge::OtherVertex(const UBMeshVertex* v) const
 {
 	check(ContainsVertex(v));
 	return v == Vert1 ? Vert2 : Vert1;
 }
 
-UBMeshEdge* UBMeshEdge::Next(UBMeshVertex* v) const
+UBMeshEdge* UBMeshEdge::Next(const UBMeshVertex* v) const
 {
 	check(ContainsVertex(v));
 	return v == Vert1 ? Next1 : Next2;
 }
 
-void UBMeshEdge::SetNext(UBMeshVertex* v, UBMeshEdge* other)
+void UBMeshEdge::SetNext(const UBMeshVertex* v, UBMeshEdge* other)
 {
 	check(ContainsVertex(v));
 	if (v == Vert1) Next1 = other;
 	else Next2 = other;
 }
 
-UBMeshEdge* UBMeshEdge::Prev(UBMeshVertex* v) const
+UBMeshEdge* UBMeshEdge::Prev(const UBMeshVertex* v) const
 {
 	check(ContainsVertex(v));
 	return v == Vert1 ? Prev1 : Prev2;
 }
 
-void UBMeshEdge::SetPrev(UBMeshVertex* v, UBMeshEdge* other)
+void UBMeshEdge::SetPrev(const UBMeshVertex* v, UBMeshEdge* other)
 {
 	check(ContainsVertex(v));
 	if (v == Vert1) Prev1 = other;
@@ -86,7 +86,7 @@ TArray<UBMeshFace*> UBMeshEdge::NeighborFaces() const
 	TArray<UBMeshFace*> Faces;
 	if (Loop)
 	{
-		UBMeshLoop* It = Loop;
+		const UBMeshLoop* It = Loop;
 		do
 		{
 			Faces.Add(It->Face);
@@ -100,4 +100,15 @@ TArray<UBMeshFace*> UBMeshEdge::NeighborFaces() const
 FVector UBMeshEdge::Center() const
 {
 	return (Vert1->Location + Vert2->Location) * 0.5f;
+}
+
+void UBMeshEdge::FNeighborFacesRangedForAdapter::FIterator::operator++()
+{
+	bFirst = false;
+	Current = Current->RadialNext;	
+}
+
+UBMeshFace* UBMeshEdge::FNeighborFacesRangedForAdapter::FIterator::operator*() const
+{
+	return Current->Face;
 }

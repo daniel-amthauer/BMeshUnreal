@@ -30,6 +30,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BMesh.h"
 
 #include "BMeshFace.generated.h"
 
@@ -82,4 +83,46 @@ public:
 	 */
 	UFUNCTION(BlueprintPure)
 	FVector Center();
+
+	//////////////////////////////////////////////
+	/// Ranged for loop support
+	//////////////////////////////////////////////
+
+	struct FVertexRangedForAdapter
+	{
+		const UBMeshFace* Owner;
+		
+		struct BMESH_API FIterator
+		{
+			UBMeshLoop* Current;
+			bool bFirst = true;
+			void operator++();
+			bool operator!=(const FIterator& Other) const
+			{
+				return Current != Other.Current || bFirst;
+			}
+			UBMeshVertex* operator*() const;
+		};
+		FIterator begin() const
+		{
+			FIterator It;
+			It.Current = Owner->FirstLoop;
+			It.bFirst = true;
+			return It;
+		}
+		FIterator end() const
+		{
+			FIterator It;
+			It.Current = Owner->FirstLoop;
+			It.bFirst = false;
+			return It;
+		}
+	};
+	
+	FVertexRangedForAdapter Vertices() const
+	{
+		FVertexRangedForAdapter Adapter;
+		Adapter.Owner = this;
+		return Adapter;
+	}
 };
