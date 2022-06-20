@@ -61,14 +61,14 @@ public:
     * Get the list of vertices used by the face, ordered.
     */
 	UFUNCTION(BlueprintPure)
-	TArray<UBMeshVertex*> NeighborVertices();
+	TArray<UBMeshVertex*> NeighborVertices() const;
 
 	/**
 	 * Assuming the vertex is part of the face, return the loop such that
 	 * loop->Vert = v. Return null otherwise.
 	 */
 	UFUNCTION(BlueprintPure)
-	UBMeshLoop* FindLoop(UBMeshVertex* v);
+	UBMeshLoop* FindLoop(UBMeshVertex* v) const;
 
 	/**
 	 * Get the list of edges around the face.
@@ -76,53 +76,87 @@ public:
 	 * edge[0] = Vert[0]-->Vert[1], edge[1] = Vert[1]-->Vert[2], etc.
 	 */
 	UFUNCTION(BlueprintPure)
-	TArray<UBMeshEdge*> NeighborEdges();
+	TArray<UBMeshEdge*> NeighborEdges() const;
 
 	/**
 	 * Compute the barycenter of the face vertices
 	 */
 	UFUNCTION(BlueprintPure)
-	FVector Center();
+	FVector Center() const;
 
 	//////////////////////////////////////////////
-	/// Ranged for loop support
+	/// Range based for loop support
 	//////////////////////////////////////////////
 
-	struct FVertexRangedForAdapter
+	struct BMESH_API FLoopIterator
+	{
+		UBMeshLoop* Current;
+		bool bFirst = true;
+		
+		void operator++();
+		bool operator!=(const FLoopIterator& Other) const
+		{
+			return Current != Other.Current || bFirst;
+		}
+		UBMeshLoop* operator*() const { return Current; }
+	};
+
+	template <typename TIterator>
+	struct TRangedForAdapter
 	{
 		const UBMeshFace* Owner;
-		
-		struct BMESH_API FIterator
+
+		TRangedForAdapter<TIterator>(const UBMeshFace* _Owner) : Owner(_Owner){}
+
+		TIterator begin() const
 		{
-			UBMeshLoop* Current;
-			bool bFirst = true;
-			void operator++();
-			bool operator!=(const FIterator& Other) const
-			{
-				return Current != Other.Current || bFirst;
-			}
-			UBMeshVertex* operator*() const;
-		};
-		FIterator begin() const
-		{
-			FIterator It;
+			TIterator It;
 			It.Current = Owner->FirstLoop;
 			It.bFirst = true;
 			return It;
 		}
-		FIterator end() const
+		TIterator end() const
 		{
-			FIterator It;
+			TIterator It;
 			It.Current = Owner->FirstLoop;
 			It.bFirst = false;
 			return It;
 		}
 	};
-	
-	FVertexRangedForAdapter Vertices() const
+
+	struct BMESH_API FVertexIterator : FLoopIterator
 	{
-		FVertexRangedForAdapter Adapter;
-		Adapter.Owner = this;
-		return Adapter;
+		UBMeshVertex* operator*() const;
+	};
+
+	struct BMESH_API FEdgeIterator : FLoopIterator
+	{
+		UBMeshEdge* operator*() const;
+	};
+
+	/**
+	* Range based for of vertices used by the face, ordered.
+	*/
+	TRangedForAdapter<FVertexIterator> Vertices() const
+	{
+		return TRangedForAdapter<FVertexIterator>(this);
+	}
+
+	/**
+	* Range based for of loops used by the face, ordered.
+	*/
+	TRangedForAdapter<FLoopIterator> Loops() const
+	{
+		return TRangedForAdapter<FLoopIterator>(this);
+	}
+
+	/**
+	 * Range based for of edges around the face.
+	 * It is guaranteed to match the order of Vertices(), so that
+	 * edge[0] = Vert[0]-->Vert[1], edge[1] = Vert[1]-->Vert[2], etc.
+	 */
+	TRangedForAdapter<FEdgeIterator> Edges() const
+	{
+		return TRangedForAdapter<FEdgeIterator>(this);
 	}
 };

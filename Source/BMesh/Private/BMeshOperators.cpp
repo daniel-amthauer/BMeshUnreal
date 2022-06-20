@@ -246,22 +246,25 @@ float FBMeshOperators::AverageRadiusLength(UBMesh* mesh)
 	for (UBMeshFace* f : mesh->Faces)
 	{
 		FVector c = f->Center();
-		TArray<UBMeshVertex*> verts = f->NeighborVertices();
-		if (verts.Num() != 4) continue;
+		int i = 0;
 		// (r for "radius")
-		FVector r0 = verts[0]->Location - c;
-		FVector r1 = verts[1]->Location - c;
-		FVector r2 = verts[2]->Location - c;
-		FVector r3 = verts[3]->Location - c;
+		FVector r[4];
+		for (auto vert: f->Vertices())
+		{
+			if (i == 4)
+				break;
+			r[i++] = vert->Location - c;
+		}
+		if (i != 4) continue;
 
-		FMatrix localToGlobal = ComputeLocalAxis(r0, r1, r2, r3);
+		FMatrix localToGlobal = ComputeLocalAxis(r[0], r[1], r[2], r[3]);
 		FMatrix globalToLocal = localToGlobal.GetTransposed();
 
 		// in local coordinates (l for "local")
-		FVector l0 = globalToLocal.TransformVector(r0); //NOT SURE IF TransformVector or TransformPosition
-		FVector l1 = globalToLocal.TransformVector(r1);
-		FVector l2 = globalToLocal.TransformVector(r2);
-		FVector l3 = globalToLocal.TransformVector(r3);
+		FVector l0 = globalToLocal.TransformVector(r[0]); //NOT SURE IF TransformVector or TransformPosition
+		FVector l1 = globalToLocal.TransformVector(r[1]);
+		FVector l2 = globalToLocal.TransformVector(r[2]);
+		FVector l3 = globalToLocal.TransformVector(r[3]);
 
 		// Rotate vectors (rl for "rotated local")
 		FVector rl0 = l0;
@@ -295,27 +298,39 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 	auto* WeightPropFloat = CastField<FFloatProperty>(WeightProperty);
 	auto WeightPropDouble = CastField<FDoubleProperty>(WeightProperty);
 
-	int i = 0;
-
-	if (RestposProperty && RestposProperty->Struct == TBaseStructure<FVector>::Get())
 	{
-		if (WeightProperty)
+		int i = 0;
+
+		if (RestposProperty && RestposProperty->Struct == TBaseStructure<FVector>::Get())
 		{
-			if (WeightPropFloat)
+			if (WeightProperty)
 			{
-				for (UBMeshVertex* v :  mesh->Vertices)
+				if (WeightPropFloat)
 				{
-					weights[i] = *WeightProperty->ContainerPtrToValuePtr<float>(v);
-					auto restpos = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
-					pointUpdates[i] = (restpos - v->Location) * weights[i];
-					v->Id = i++;
+					for (UBMeshVertex* v :  mesh->Vertices)
+					{
+						weights[i] = *WeightProperty->ContainerPtrToValuePtr<float>(v);
+						auto restpos = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
+						pointUpdates[i] = (restpos - v->Location) * weights[i];
+						v->Id = i++;
+					}
+				}
+				else if (WeightPropDouble)
+				{
+					for (UBMeshVertex* v :  mesh->Vertices)
+					{
+						weights[i] = *WeightProperty->ContainerPtrToValuePtr<double>(v);
+						auto restpos = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
+						pointUpdates[i] = (restpos - v->Location) * weights[i];
+						v->Id = i++;
+					}
 				}
 			}
-			else if (WeightPropDouble)
+			else
 			{
-				for (UBMeshVertex* v :  mesh->Vertices)
+				for (UBMeshVertex* v : mesh->Vertices)
 				{
-					weights[i] = *WeightProperty->ContainerPtrToValuePtr<double>(v);
+					weights[i] = 1;
 					auto restpos = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
 					pointUpdates[i] = (restpos - v->Location) * weights[i];
 					v->Id = i++;
@@ -326,20 +341,10 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 		{
 			for (UBMeshVertex* v : mesh->Vertices)
 			{
-				weights[i] = 1;
-				auto restpos = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
-				pointUpdates[i] = (restpos - v->Location) * weights[i];
+				weights[i] = 0.0f;
+				pointUpdates[i] = FVector::ZeroVector;
 				v->Id = i++;
 			}
-		}
-	}
-	else
-	{
-		for (UBMeshVertex* v : mesh->Vertices)
-		{
-			weights[i] = 0.0f;
-			pointUpdates[i] = FVector::ZeroVector;
-			v->Id = i++;
 		}
 	}
 
@@ -347,22 +352,27 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 	for (UBMeshFace* f : mesh->Faces)
 	{
 		FVector c = f->Center();
-		TArray<UBMeshVertex*> verts = f->NeighborVertices();
-		if (verts.Num() != 4) continue;
+		int i = 0;
 		// (r for "radius")
-		FVector r0 = verts[0]->Location - c;
-		FVector r1 = verts[1]->Location - c;
-		FVector r2 = verts[2]->Location - c;
-		FVector r3 = verts[3]->Location - c;
+		FVector r[4];
+		UBMeshVertex* verts[4];
+		for (auto vert: f->Vertices())
+		{
+			if (i == 4)
+				break;
+			verts[i] = vert;
+			r[i++] = vert->Location - c;
+		}
+		if (i != 4) continue;
 
-		FMatrix localToGlobal = ComputeLocalAxis(r0, r1, r2, r3);
+		FMatrix localToGlobal = ComputeLocalAxis(r[0], r[1], r[2], r[3]);
 		FMatrix globalToLocal = localToGlobal.GetTransposed();
 
 		//:local coordinates (l for "local")
-		FVector l0 = globalToLocal.TransformVector(r0); //not sure if TransformVector or TransformPosition
-		FVector l1 = globalToLocal.TransformVector(r1);
-		FVector l2 = globalToLocal.TransformVector(r2);
-		FVector l3 = globalToLocal.TransformVector(r3);
+		FVector l0 = globalToLocal.TransformVector(r[0]); //not sure if TransformVector or TransformPosition
+		FVector l1 = globalToLocal.TransformVector(r[1]);
+		FVector l2 = globalToLocal.TransformVector(r[2]);
+		FVector l3 = globalToLocal.TransformVector(r[3]);
 
 		bool switch03 = false;
 		if (l1.GetSafeNormal().Y < l3.GetSafeNormal().Y)
@@ -407,10 +417,10 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 		FVector t3 = localToGlobal.TransformVector(lt3);
 
 		// Accumulate
-		pointUpdates[verts[0]->Id] += t0 - r0;
-		pointUpdates[verts[1]->Id] += t1 - r1;
-		pointUpdates[verts[2]->Id] += t2 - r2;
-		pointUpdates[verts[3]->Id] += t3 - r3;
+		pointUpdates[verts[0]->Id] += t0 - r[0];
+		pointUpdates[verts[1]->Id] += t1 - r[1];
+		pointUpdates[verts[2]->Id] += t2 - r[2];
+		pointUpdates[verts[3]->Id] += t3 - r[3];
 		weights[verts[0]->Id] += 1;
 		weights[verts[1]->Id] += 1;
 		weights[verts[2]->Id] += 1;
@@ -418,7 +428,7 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 	}
 
 	// Apply updates
-	i = 0;
+	int i = 0;
 	for (UBMeshVertex* v : mesh->Vertices)
 	{
 		if (weights[i] > 0)

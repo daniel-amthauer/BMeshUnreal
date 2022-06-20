@@ -32,7 +32,7 @@
 #include "BMeshVertex.h"
 #include "BMeshLoop.h"
 
-TArray<UBMeshVertex*> UBMeshFace::NeighborVertices()
+TArray<UBMeshVertex*> UBMeshFace::NeighborVertices() const
 {
 	TArray<UBMeshVertex*> verts;
 	if (FirstLoop != nullptr)
@@ -48,7 +48,7 @@ TArray<UBMeshVertex*> UBMeshFace::NeighborVertices()
 	return verts;
 }
 
-UBMeshLoop* UBMeshFace::FindLoop(UBMeshVertex* v)
+UBMeshLoop* UBMeshFace::FindLoop(UBMeshVertex* v) const
 {
 	if (FirstLoop != nullptr)
 	{
@@ -64,7 +64,7 @@ UBMeshLoop* UBMeshFace::FindLoop(UBMeshVertex* v)
 	return nullptr;
 }
 
-TArray<UBMeshEdge*> UBMeshFace::NeighborEdges()
+TArray<UBMeshEdge*> UBMeshFace::NeighborEdges() const
 {
 	TArray<UBMeshEdge*> edges;
 	if (FirstLoop != nullptr)
@@ -80,11 +80,11 @@ TArray<UBMeshEdge*> UBMeshFace::NeighborEdges()
 	return edges;
 }
 
-FVector UBMeshFace::Center()
+FVector UBMeshFace::Center() const
 {
 	FVector p = FVector::ZeroVector;
 	float sum = 0;
-	for (UBMeshVertex* v : NeighborVertices())
+	for (UBMeshVertex* v : Vertices())
 	{
 		p += v->Location;
 		sum += 1;
@@ -92,13 +92,18 @@ FVector UBMeshFace::Center()
 	return p / sum;
 }
 
-void UBMeshFace::FVertexRangedForAdapter::FIterator::operator++()
+void UBMeshFace::FLoopIterator::operator++()
 {
 	bFirst = false;
 	Current = Current->Next;
 }
 
-UBMeshVertex* UBMeshFace::FVertexRangedForAdapter::FIterator::operator*() const
+UBMeshVertex* UBMeshFace::FVertexIterator::operator*() const
 {
 	return Current->Vert;
+}
+
+UBMeshEdge* UBMeshFace::FEdgeIterator::operator*() const
+{
+	return Current->Edge;
 }
