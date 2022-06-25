@@ -34,6 +34,7 @@
 class UBMeshEdge;
 class UBMesh;
 class UBMeshVertex;
+class FPrimitiveDrawInterface;
 
 /**
  * BMesh Operators are static functions manipulating BMesh objects. Their first
@@ -90,9 +91,9 @@ private:
 			T* TypedProperty = static_cast<T*>(Property);
 			for (int i = 0; i < TypedProperty->ArrayDim; ++i)
 			{
-				T::TCppType val1 = TypedProperty->GetPropertyValue_InContainer(v1, i);
-				T::TCppType val2 = TypedProperty->GetPropertyValue_InContainer(v2, i);
-				T::TCppType result = FMath::Lerp(val1, val2, t);
+				typename T::TCppType val1 = TypedProperty->GetPropertyValue_InContainer(v1, i);
+				typename T::TCppType val2 = TypedProperty->GetPropertyValue_InContainer(v2, i);
+				typename T::TCppType result = FMath::Lerp(val1, val2, t);
 				TypedProperty->SetPropertyValue_InContainer(destination, result, i);
 			}
 		}
@@ -213,10 +214,7 @@ public:
 	///
 
 	/**
-     * Draw details about the BMesh structure un the viewport.
-     * To be used inside of OnDrawGizmozs() in a MonoBehavior script.
-     * You'll most likely need to add beforehand:
-     *     Gizmos.matrix = transform.localToWorldMatrix
+     * Draw details about the BMesh structure on the viewport.
      */
 	static void DrawPrimitives(FPrimitiveDrawInterface* PDI, FTransform LocalToWorld, UBMesh* mesh);
 
