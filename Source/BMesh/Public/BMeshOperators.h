@@ -221,4 +221,21 @@ public:
 	static void DrawPrimitives(UWorld* World, FTransform LocalToWorld, UBMesh* mesh);
 
 	static void DrawPrimitives(TFunction<void(FVector, FVector, FColor)> DrawLine, UBMesh* mesh);
+
+	/**
+	 * Sorts all vertices in the mesh so their indices match their coordinates sorted in XYZ order
+	 */
+	static void SortVertices(UBMesh* Mesh);
+
+	/**
+	 * Changes FirstLoop member of each face to point to the vertex with the lowest iid
+	 */ 
+	static void SortFaceLoops(UBMesh* Mesh);
+
+	/**
+	 * Sorts faces based on their centers
+	 */ 
+	static void SortFacesByCenters(UBMesh* Mesh);
+
+	static void SortFacesByFirstLoopId(UBMesh* Mesh);
 };

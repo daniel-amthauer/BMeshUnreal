@@ -531,6 +531,71 @@ void FBMeshOperators::DrawPrimitives(TFunction<void(FVector, FVector, FColor)> D
 	}
 }
 
+void FBMeshOperators::SortVertices(UBMesh* Mesh)
+{
+	Mesh->Vertices.Sort([](const UBMeshVertex& A, const UBMeshVertex& B)
+	{
+		if (A.Location.Z < B.Location.Z)
+			return true;
+		if (A.Location.Y < B.Location.Y)
+			return true;
+		return A.Location.X < B.Location.X && A.Location.Y <= B.Location.Y && A.Location.Z <= B.Location.Z;
+	});
+}
+
+void FBMeshOperators::SortFaceLoops(UBMesh* Mesh)
+{
+	Mesh->UpdateElementIds<UBMeshVertex>();
+	for (const auto Face : Mesh->Faces)
+	{
+		auto LowestLoop = Face->FirstLoop;
+		auto It = LowestLoop->Next;
+		do
+		{
+			if (It->Vert->Id < LowestLoop->Vert->Id)
+			{
+				LowestLoop = It;
+			}
+			It = It->Next;
+		}
+		while (It != Face->FirstLoop);
+		Face->FirstLoop = LowestLoop;
+	}
+}
+
+void FBMeshOperators::SortFacesByCenters(UBMesh* Mesh)
+{
+	Mesh->UpdateElementIds<UBMeshFace>();
+	TArray<FVector> Centers;
+	Centers.Reserve(Mesh->Faces.Num());
+	for (const auto Face : Mesh->Faces)
+	{
+		Centers.Add(Face->Center());
+	}
+	Mesh->Faces.Sort([&](const UBMeshFace& A, const UBMeshFace& B)
+	{
+		const auto& CA = Centers[A.Id];
+		const auto& CB = Centers[B.Id];
+		if (CA.Z < CB.Z)
+			return true;
+		if (CA.Y < CB.Y)
+			return true;
+		return CA.X < CB.X && CA.Y <= CB.Y && CA.Z <= CB.Z;
+	});
+}
+
+void FBMeshOperators::SortFacesByFirstLoopId(UBMesh* Mesh)
+{
+	for (const auto Face : Mesh->Faces)
+	{
+		Face->Id = Face->FirstLoop->Vert->Id;
+	}
+	Mesh->Faces.Sort([](const UBMeshFace& A, const UBMeshFace& B)
+	{
+		return A.Id < B.Id;
+	});
+}
+
 //void FBMeshOperators::Merge(UBMesh* mesh, UBMesh* other)
 //{
 //	var newVerts = new Vertex[other.vertices.Count];
