@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2020 -- Daniel Amthauer
  * 
- * Based on BMesh for Unity by Élie Michel (c) 2020, original copyright info included below
+ * Based on BMesh for Unity by Ã‰lie Michel (c) 2020, original copyright info included below
  * as specified by the original license terms. Those terms also apply to this version.
  */
 
 /*
- * Copyright (c) 2020 -- Élie Michel <elie@exppad.com>
+ * Copyright (c) 2020 -- Ã‰lie Michel <elie@exppad.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -171,9 +171,9 @@ public:
 	 * Axis local to a quad face where r0, ..., r3 are vectors from the face
 	 * center to its vertices.
 	 */
-	static FMatrix ComputeLocalAxis(FVector r0, FVector r1, FVector r2, FVector r3);
+	static FMatrix ComputeLocalAxis(FVector r0, FVector r1, FVector r2, FVector r3, bool bNormalIsUp);
 
-	static float AverageRadiusLength(UBMesh* mesh);
+	static float AverageRadiusLength(UBMesh* mesh, bool bNormalIsUp);
 
 	/**
 	 * Try to make quads as square as possible (may be called iteratively).
@@ -189,7 +189,15 @@ public:
 	 *        faster but there is a risk for overshooting.
 	 * @param uniformLength whether the size of the quads must be uniformized.
 	 */
-	static void SquarifyQuads(UBMesh* mesh, float rate = 1.0f, bool uniformLength = false);
+	struct FSquarifyQuadsParams
+	{
+		float Rate = 1.0f;
+		TOptional<float> TargetUniformLength;
+		bool bCalculateUniformLength = false;
+		bool bNormalIsUp = false;
+		int Iterations = 1;
+	};
+	static void SquarifyQuads(UBMesh* mesh, FSquarifyQuadsParams Params);
 
 
 	/**
@@ -197,8 +205,6 @@ public:
 	 * Center vertex does not interpolate values from original vertices
 	 */
 	static void SubdivideTriangleFan(TArrayView<class UBMeshFace* const> Faces);
-
-	//#endregion
 
 	///////////////////////////////////////////////////////////////////////////
 	// [Merge]

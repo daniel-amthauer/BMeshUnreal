@@ -225,9 +225,9 @@ bool FBMeshOperators::MergeFaces(UBMesh* Mesh, UBMeshEdge* Edge)
 	return true;
 }
 
-FMatrix FBMeshOperators::ComputeLocalAxis(FVector r0, FVector r1, FVector r2, FVector r3)
+FMatrix FBMeshOperators::ComputeLocalAxis(FVector r0, FVector r1, FVector r2, FVector r3, bool bNormalIsUp)
 {
-	FVector Z = (
+	FVector Z = bNormalIsUp ? FVector::UpVector : (
 		FVector::CrossProduct(r0, r1).GetSafeNormal()
 		+ FVector::CrossProduct(r1, r2).GetSafeNormal()
 		+ FVector::CrossProduct(r2, r3).GetSafeNormal()
@@ -239,7 +239,7 @@ FMatrix FBMeshOperators::ComputeLocalAxis(FVector r0, FVector r1, FVector r2, FV
 	return localToGlobal;
 }
 
-float FBMeshOperators::AverageRadiusLength(UBMesh* mesh)
+float FBMeshOperators::AverageRadiusLength(UBMesh* mesh, bool bNormalIsUp)
 {
 	float lengthsum = 0;
 	float weightsum = 0;
@@ -257,7 +257,7 @@ float FBMeshOperators::AverageRadiusLength(UBMesh* mesh)
 		}
 		if (i != 4) continue;
 
-		FMatrix localToGlobal = ComputeLocalAxis(r[0], r[1], r[2], r[3]);
+		FMatrix localToGlobal = ComputeLocalAxis(r[0], r[1], r[2], r[3], bNormalIsUp);
 		FMatrix globalToLocal = localToGlobal.GetTransposed();
 
 		// in local coordinates (l for "local")
@@ -280,12 +280,16 @@ float FBMeshOperators::AverageRadiusLength(UBMesh* mesh)
 	return lengthsum / weightsum;
 }
 
-void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength)
+void FBMeshOperators::SquarifyQuads(UBMesh* mesh, FSquarifyQuadsParams Params)
 {
-	float avg = 0;
-	if (uniformLength)
+	float TargetUniformLength = 0;
+	if (Params.bCalculateUniformLength)
 	{
-		avg = AverageRadiusLength(mesh);
+		TargetUniformLength = AverageRadiusLength(mesh, Params.bNormalIsUp);
+	}
+	else if (Params.TargetUniformLength.IsSet())
+	{
+		TargetUniformLength = Params.TargetUniformLength.GetValue();
 	}
 
 	TArray<FVector> pointUpdates;
@@ -295,7 +299,7 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 
 	FStructProperty* RestposProperty = CastField<FStructProperty>(mesh->VertexClass->FindPropertyByName(FName("RestPos")));
 	FProperty* WeightProperty = mesh->VertexClass->FindPropertyByName(FName("Weight"));
-	auto* WeightPropFloat = CastField<FFloatProperty>(WeightProperty);
+	auto WeightPropFloat = CastField<FFloatProperty>(WeightProperty);
 	auto WeightPropDouble = CastField<FDoubleProperty>(WeightProperty);
 
 	{
@@ -348,103 +352,106 @@ void FBMeshOperators::SquarifyQuads(UBMesh* mesh, float rate, bool uniformLength
 		}
 	}
 
-	// Accumulate updates
-	for (UBMeshFace* f : mesh->Faces)
+	for (int Iteration = 0; Iteration < Params.Iterations; ++Iteration)
 	{
-		FVector c = f->Center();
+		// Accumulate updates
+		for (UBMeshFace* f : mesh->Faces)
+		{
+			FVector c = f->Center();
+			int i = 0;
+			// (r for "radius")
+			FVector r[4];
+			UBMeshVertex* verts[4];
+			for (auto vert: f->Vertices())
+			{
+				if (i == 4)
+					break;
+				verts[i] = vert;
+				r[i++] = vert->Location - c;
+			}
+			if (i != 4) continue;
+
+			FMatrix localToGlobal = ComputeLocalAxis(r[0], r[1], r[2], r[3], Params.bNormalIsUp);
+			FMatrix globalToLocal = localToGlobal.GetTransposed();
+
+			//:local coordinates (l for "local")
+			FVector l0 = globalToLocal.TransformVector(r[0]); //not sure if TransformVector or TransformPosition
+			FVector l1 = globalToLocal.TransformVector(r[1]);
+			FVector l2 = globalToLocal.TransformVector(r[2]);
+			FVector l3 = globalToLocal.TransformVector(r[3]);
+
+			bool switch03 = false;
+			if (l1.GetSafeNormal().Y < l3.GetSafeNormal().Y)
+			{
+				switch03 = true;
+				auto tmp = l3;
+				l3 = l1;
+				l1 = tmp;
+			}
+			// now 0->1->2->3 is:direct trigonometric order
+
+			// Rotate vectors (rl for "rotated local")
+			FVector rl0 = l0;
+			FVector rl1 = FVector(l1.Y, -l1.X, l1.Z);
+			FVector rl2 = FVector(-l2.X, -l2.Y, l2.Z);
+			FVector rl3 = FVector(-l3.Y, l3.X, l3.Z);
+
+			FVector average = (rl0 + rl1 + rl2 + rl3) / 4;
+			if (TargetUniformLength != 0.0f)
+			{
+				average = average.GetSafeNormal() * TargetUniformLength;
+			}
+
+			// Rotate back (lt for "local target")
+			FVector lt0 = average;
+			FVector lt1 = FVector(-average.Y, average.X, average.Z);
+			FVector lt2 = FVector(-average.X, -average.Y, average.Z);
+			FVector lt3 = FVector(average.Y, -average.X, average.Z);
+
+			// Switch back
+			if (switch03)
+			{
+				auto tmp = lt3;
+				lt3 = lt1;
+				lt1 = tmp;
+			}
+
+			// Back to global (t for "target")
+			FVector t0 = localToGlobal.TransformVector(lt0);
+			FVector t1 = localToGlobal.TransformVector(lt1);
+			FVector t2 = localToGlobal.TransformVector(lt2);
+			FVector t3 = localToGlobal.TransformVector(lt3);
+
+			// Accumulate
+			pointUpdates[verts[0]->Id] += t0 - r[0];
+			pointUpdates[verts[1]->Id] += t1 - r[1];
+			pointUpdates[verts[2]->Id] += t2 - r[2];
+			pointUpdates[verts[3]->Id] += t3 - r[3];
+			weights[verts[0]->Id] += 1;
+			weights[verts[1]->Id] += 1;
+			weights[verts[2]->Id] += 1;
+			weights[verts[3]->Id] += 1;
+		}
+
+		// Apply updates
 		int i = 0;
-		// (r for "radius")
-		FVector r[4];
-		UBMeshVertex* verts[4];
-		for (auto vert: f->Vertices())
-		{
-			if (i == 4)
-				break;
-			verts[i] = vert;
-			r[i++] = vert->Location - c;
-		}
-		if (i != 4) continue;
-
-		FMatrix localToGlobal = ComputeLocalAxis(r[0], r[1], r[2], r[3]);
-		FMatrix globalToLocal = localToGlobal.GetTransposed();
-
-		//:local coordinates (l for "local")
-		FVector l0 = globalToLocal.TransformVector(r[0]); //not sure if TransformVector or TransformPosition
-		FVector l1 = globalToLocal.TransformVector(r[1]);
-		FVector l2 = globalToLocal.TransformVector(r[2]);
-		FVector l3 = globalToLocal.TransformVector(r[3]);
-
-		bool switch03 = false;
-		if (l1.GetSafeNormal().Y < l3.GetSafeNormal().Y)
-		{
-			switch03 = true;
-			auto tmp = l3;
-			l3 = l1;
-			l1 = tmp;
-		}
-		// now 0->1->2->3 is:direct trigonometric order
-
-		// Rotate vectors (rl for "rotated local")
-		FVector rl0 = l0;
-		FVector rl1 = FVector(l1.Y, -l1.X, l1.Z);
-		FVector rl2 = FVector(-l2.X, -l2.Y, l2.Z);
-		FVector rl3 = FVector(-l3.Y, l3.X, l3.Z);
-
-		FVector average = (rl0 + rl1 + rl2 + rl3) / 4;
-		if (uniformLength)
-		{
-			average = average.GetSafeNormal() * avg;
-		}
-
-		// Rotate back (lt for "local target")
-		FVector lt0 = average;
-		FVector lt1 = FVector(-average.Y, average.X, average.Z);
-		FVector lt2 = FVector(-average.X, -average.Y, average.Z);
-		FVector lt3 = FVector(average.Y, -average.X, average.Z);
-
-		// Switch back
-		if (switch03)
-		{
-			auto tmp = lt3;
-			lt3 = lt1;
-			lt1 = tmp;
-		}
-
-		// Back to global (t for "target")
-		FVector t0 = localToGlobal.TransformVector(lt0);
-		FVector t1 = localToGlobal.TransformVector(lt1);
-		FVector t2 = localToGlobal.TransformVector(lt2);
-		FVector t3 = localToGlobal.TransformVector(lt3);
-
-		// Accumulate
-		pointUpdates[verts[0]->Id] += t0 - r[0];
-		pointUpdates[verts[1]->Id] += t1 - r[1];
-		pointUpdates[verts[2]->Id] += t2 - r[2];
-		pointUpdates[verts[3]->Id] += t3 - r[3];
-		weights[verts[0]->Id] += 1;
-		weights[verts[1]->Id] += 1;
-		weights[verts[2]->Id] += 1;
-		weights[verts[3]->Id] += 1;
-	}
-
-	// Apply updates
-	int i = 0;
-	for (UBMeshVertex* v : mesh->Vertices)
-	{
-		if (weights[i] > 0)
-		{
-			v->Location += pointUpdates[i] * (rate / weights[i]);
-		}
-		++i;
-	}
-	//ensure verts with 1.0 weight are fully constrained to their rest pos
-	if (RestposProperty && WeightPropDouble)
-	{
 		for (UBMeshVertex* v : mesh->Vertices)
 		{
-			if (*WeightPropDouble->ContainerPtrToValuePtr<double>(v) == 1.0)
+			if (weights[i] > 0)
 			{
-				v->Location = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
+				v->Location += pointUpdates[i] * (Params.Rate / weights[i]);
+			}
+			++i;
+		}
+		//ensure verts with 1.0 weight are fully constrained to their rest pos
+		if (RestposProperty && WeightPropDouble)
+		{
+			for (UBMeshVertex* v : mesh->Vertices)
+			{
+				if (*WeightPropDouble->ContainerPtrToValuePtr<double>(v) == 1.0)
+				{
+					v->Location = *RestposProperty->ContainerPtrToValuePtr<FVector>(v);
+				}
 			}
 		}
 	}

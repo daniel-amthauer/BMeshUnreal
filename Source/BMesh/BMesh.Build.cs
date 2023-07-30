@@ -36,6 +36,8 @@ public class BMesh : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
+		CppStandard = CppStandardVersion.Latest;
+		
 		PublicIncludePaths.AddRange(
 			new string[] {
 				Path.Combine(ModuleDirectory, "Public")

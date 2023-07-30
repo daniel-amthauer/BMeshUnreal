@@ -102,6 +102,7 @@ public:
 		FIterator end() const
 		{
 			FIterator It;
+			It.Owner = nullptr;
 			It.Current = Owner->Edge;
 			It.bFirst = false;
 			return It;

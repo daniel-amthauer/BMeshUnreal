@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2020 -- Daniel Amthauer
  * 
- * Based on BMesh for Unity by Élie Michel (c) 2020, original copyright info included below
+ * Based on BMesh for Unity by Ã‰lie Michel (c) 2020, original copyright info included below
  * as specified by the original license terms. Those terms also apply to this version.
  */
 
 /*
- * Copyright (c) 2020 -- Élie Michel <elie@exppad.com>
+ * Copyright (c) 2020 -- Ã‰lie Michel <elie@exppad.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
