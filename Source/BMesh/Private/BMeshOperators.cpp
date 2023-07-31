@@ -87,13 +87,13 @@ void FBMeshOperators::Subdivide(UBMesh* mesh)
 	int i = 0;
 	TArray<UBMeshVertex*> edgeCenters;
 	edgeCenters.SetNum(mesh->Edges.Num());
-	TArray<UBMeshEdge*> originalEdges;
-	originalEdges.SetNum(mesh->Edges.Num());
+	// TArray<UBMeshEdge*> originalEdges;
+	// originalEdges.SetNum(mesh->Edges.Num());
 	for (UBMeshEdge* e : mesh->Edges)
 	{
 		edgeCenters[i] = mesh->AddVertex(e->Center());
 		AttributeLerp(mesh, edgeCenters[i], e->Vert1, e->Vert2, 0.5f);
-		originalEdges[i] = e;
+		// originalEdges[i] = e;
 		e->Id = i++;
 	}
 
@@ -125,11 +125,11 @@ void FBMeshOperators::Subdivide(UBMesh* mesh)
 		mesh->RemoveFace(f);
 	}
 
-	// Remove old edges
-	for (UBMeshEdge* e : originalEdges)
-	{
-		mesh->RemoveEdge(e);
-	}
+	// // Remove old edges
+	// for (UBMeshEdge* e : originalEdges)
+	// {
+	// 	mesh->RemoveEdge(e);
+	// }
 }
 
 bool FBMeshOperators::Subdivide3(UBMesh* mesh)
@@ -144,13 +144,13 @@ bool FBMeshOperators::Subdivide3(UBMesh* mesh)
 	int i = 0;
 	TArray<UBMeshVertex*> edgeCenters;
 	edgeCenters.SetNum(mesh->Edges.Num());
-	TArray<UBMeshEdge*> originalEdges;
-	originalEdges.SetNum(mesh->Edges.Num());
+	// TArray<UBMeshEdge*> originalEdges;
+	// originalEdges.SetNum(mesh->Edges.Num());
 	for (UBMeshEdge* e : mesh->Edges)
 	{
 		edgeCenters[i] = mesh->AddVertex(e->Center());
 		AttributeLerp(mesh, edgeCenters[i], e->Vert1, e->Vert2, 0.5f);
-		originalEdges[i] = e;
+		// originalEdges[i] = e;
 		e->Id = i++;
 	}
 
@@ -184,11 +184,11 @@ bool FBMeshOperators::Subdivide3(UBMesh* mesh)
 		mesh->RemoveFace(f);
 	}
 
-	// Remove old edges
-	for (UBMeshEdge* e : originalEdges)
-	{
-		mesh->RemoveEdge(e);
-	}
+	// // Remove old edges
+	// for (UBMeshEdge* e : originalEdges)
+	// {
+	// 	mesh->RemoveEdge(e);
+	// }
 	
 	return true;
 }

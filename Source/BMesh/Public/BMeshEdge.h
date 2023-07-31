@@ -77,7 +77,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category="Bmesh Edge")
 	UBMeshEdge* Next1;
 
-	// next edge around vert1
+	// next edge around vert2
 	UPROPERTY(BlueprintReadOnly, Category="Bmesh Edge")
 	UBMeshEdge* Next2;
 

@@ -67,13 +67,18 @@ TArray<UBMeshFace*> UBMeshVertex::NeighborFaces() const
 	return Faces;
 }
 
-void UBMeshVertex::FNeighborVerticesRangedForAdapter::FIterator::operator++()
+void UBMeshVertex::FIteratorBase::operator++()
 {
 	bFirst = false;
 	Current = Current->Next(Owner);
 }
 
-UBMeshVertex* UBMeshVertex::FNeighborVerticesRangedForAdapter::FIterator::operator*() const
+UBMeshVertex* UBMeshVertex::FVertexIterator::operator*() const
 {
 	return Current->OtherVertex(Owner);
+}
+
+UBMeshEdge* UBMeshVertex::FEdgeIterator::operator*() const
+{
+	return Current;
 }

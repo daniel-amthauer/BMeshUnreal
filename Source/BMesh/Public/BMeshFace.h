@@ -106,7 +106,7 @@ public:
 	{
 		const UBMeshFace* Owner;
 
-		TRangedForAdapter<TIterator>(const UBMeshFace* _Owner) : Owner(_Owner){}
+		TRangedForAdapter(const UBMeshFace* _Owner) : Owner(_Owner){}
 
 		TIterator begin() const
 		{

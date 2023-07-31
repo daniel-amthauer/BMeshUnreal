@@ -345,6 +345,7 @@ void UBMesh::RemoveLoop(UBMeshLoop* l)
 	if (l->RadialNext == l)
 	{
 		l->Edge->Loop = nullptr;
+		RemoveEdge(l->Edge);
 	}
 	else
 	{

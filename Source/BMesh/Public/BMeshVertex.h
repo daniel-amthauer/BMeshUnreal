@@ -56,6 +56,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	FVector Location;
 
+	//First edge in linked list of edges this vertex participates in
 	UPROPERTY(BlueprintReadOnly)
 	UBMeshEdge* Edge;
 
@@ -75,33 +76,44 @@ public:
 	/// Ranged for loop support
 	//////////////////////////////////////////////
 
-	struct FNeighborVerticesRangedForAdapter
+	struct BMESH_API FIteratorBase
+	{
+		const UBMeshVertex* Owner;
+		UBMeshEdge* Current;
+		bool bFirst = true;
+		void operator++();
+		bool operator!=(const FIteratorBase& Other) const
+		{
+			return Current != Other.Current || bFirst;
+		}
+	};
+
+	struct BMESH_API FVertexIterator : FIteratorBase
+	{
+		UBMeshVertex* operator*() const;
+	};
+
+	struct BMESH_API FEdgeIterator : FIteratorBase
+	{
+		UBMeshEdge* operator*() const;
+	};
+
+	template<typename TIterator>
+	struct TRangedForAdapter
 	{
 		const UBMeshVertex* Owner;
 		
-		struct BMESH_API FIterator
+		TIterator begin() const
 		{
-			const UBMeshVertex* Owner;
-			UBMeshEdge* Current;
-			bool bFirst = true;
-			void operator++();
-			bool operator!=(const FIterator& Other) const
-			{
-				return Current != Other.Current || bFirst;
-			}
-			UBMeshVertex* operator*() const;
-		};
-		FIterator begin() const
-		{
-			FIterator It;
+			TIterator It;
 			It.Owner = Owner;
 			It.Current = Owner->Edge;
 			It.bFirst = true;
 			return It;
 		}
-		FIterator end() const
+		TIterator end() const
 		{
-			FIterator It;
+			TIterator It;
 			It.Owner = nullptr;
 			It.Current = Owner->Edge;
 			It.bFirst = false;
@@ -109,9 +121,16 @@ public:
 		}
 	};
 	
-	FNeighborVerticesRangedForAdapter NeighborVerticesRange() const
+	TRangedForAdapter<FVertexIterator> NeighborVerticesRange() const
 	{
-		FNeighborVerticesRangedForAdapter Adapter;
+		TRangedForAdapter<FVertexIterator> Adapter;
+		Adapter.Owner = this;
+		return Adapter;
+	}
+
+	TRangedForAdapter<FEdgeIterator> EdgesRange() const
+	{
+		TRangedForAdapter<FEdgeIterator> Adapter;
 		Adapter.Owner = this;
 		return Adapter;
 	}
